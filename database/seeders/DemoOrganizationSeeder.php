@@ -16,9 +16,9 @@ class DemoOrganizationSeeder extends Seeder
     public function run(): void
     {
         $company = Company::query()->updateOrCreate(
-            ['name' => 'Micro POS Demo Company'],
+            ['name' => 'Island Thrift Demo Company'],
             [
-                'legal_name' => 'Micro POS Demo Company',
+                'legal_name' => 'Island Thrift Demo Company',
                 'timezone' => 'Indian/Maldives',
                 'currency' => 'MVR',
                 'is_active' => true,
@@ -45,12 +45,12 @@ class DemoOrganizationSeeder extends Seeder
         );
 
         $user = User::query()->updateOrCreate(
-            ['email' => 'admin@micropos.local'],
+            ['email' => 'admin@islandthrift.local'],
             [
                 'company_id' => $company->id,
                 'branch_id' => $branch->id,
                 'warehouse_id' => $warehouse->id,
-                'name' => 'Micro POS Admin',
+                'name' => 'Island Thrift Admin',
                 'password' => 'password',
                 'is_active' => true,
             ]
@@ -59,12 +59,12 @@ class DemoOrganizationSeeder extends Seeder
         $user->syncRoles(['super-admin']);
 
         $cashier = User::query()->updateOrCreate(
-            ['email' => 'cashier@micropos.local'],
+            ['email' => 'cashier@islandthrift.local'],
             [
                 'company_id' => $company->id,
                 'branch_id' => $branch->id,
                 'warehouse_id' => $warehouse->id,
-                'name' => 'Micro POS Cashier',
+                'name' => 'Island Thrift Cashier',
                 'password' => 'password',
                 'is_active' => true,
             ]

@@ -17,7 +17,7 @@ class ProductCatalogDemoSeeder extends Seeder
      */
     public function run(): void
     {
-        $company = Company::query()->where('name', 'Micro POS Demo Company')->firstOrFail();
+        $company = Company::query()->where('name', 'Island Thrift Demo Company')->firstOrFail();
 
         $categories = collect([
             ['name' => 'Beverages', 'code' => 'BEV'],

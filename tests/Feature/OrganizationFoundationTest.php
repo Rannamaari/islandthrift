@@ -177,7 +177,7 @@ class OrganizationFoundationTest extends TestCase
     {
         $this->seed(DatabaseSeeder::class);
 
-        $company = Company::query()->where('name', 'Micro POS Demo Company')->first();
+        $company = Company::query()->where('name', 'Island Thrift Demo Company')->first();
         $branch = Branch::query()->where('code', 'MAIN')->first();
         $warehouse = Warehouse::query()->where('code', 'MAIN-WH')->first();
 
@@ -195,7 +195,7 @@ class OrganizationFoundationTest extends TestCase
         $this->seed(DatabaseSeeder::class);
 
         $this->assertTrue(Auth::attempt([
-            'email' => 'admin@micropos.local',
+            'email' => 'admin@islandthrift.local',
             'password' => 'password',
         ]));
     }
@@ -205,7 +205,7 @@ class OrganizationFoundationTest extends TestCase
     {
         $this->seed(DatabaseSeeder::class);
 
-        $user = User::query()->where('email', 'admin@micropos.local')->firstOrFail();
+        $user = User::query()->where('email', 'admin@islandthrift.local')->firstOrFail();
 
         $this->assertTrue($user->hasRole('super-admin'));
     }
@@ -215,7 +215,7 @@ class OrganizationFoundationTest extends TestCase
     {
         $this->seed(DatabaseSeeder::class);
 
-        $user = User::query()->where('email', 'admin@micropos.local')->firstOrFail();
+        $user = User::query()->where('email', 'admin@islandthrift.local')->firstOrFail();
         $warehouse = Warehouse::query()->where('company_id', $user->company_id)->where('code', 'MAIN-WH')->firstOrFail();
 
         $this->assertSame($warehouse->id, $user->warehouse_id);

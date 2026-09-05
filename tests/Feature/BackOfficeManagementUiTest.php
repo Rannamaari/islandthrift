@@ -125,7 +125,7 @@ class BackOfficeManagementUiTest extends TestCase
     public function authorized_admin_can_open_branch_receipt_settings(): void
     {
         $this->seed(DatabaseSeeder::class);
-        $admin = User::query()->where('email', 'admin@micropos.local')->firstOrFail();
+        $admin = User::query()->where('email', 'admin@islandthrift.local')->firstOrFail();
 
         $this->actingAs($admin)
             ->get('/admin/receipt-settings')

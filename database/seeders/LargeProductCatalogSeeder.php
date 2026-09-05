@@ -23,7 +23,7 @@ class LargeProductCatalogSeeder extends Seeder
      */
     public function run(): void
     {
-        $company = Company::query()->where('name', 'Micro POS Demo Company')->firstOrFail();
+        $company = Company::query()->where('name', 'Island Thrift Demo Company')->firstOrFail();
 
         $categories = Category::query()->where('company_id', $company->id)->pluck('id')->values();
         $brands = Brand::query()->where('company_id', $company->id)->pluck('id')->values();

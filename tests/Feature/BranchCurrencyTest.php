@@ -47,7 +47,7 @@ class BranchCurrencyTest extends TestCase
     public function test_completed_sales_snapshot_their_branch_receipt_profile(): void
     {
         $company = Company::factory()->create([
-            'receipt_shop_name' => 'Moscow Trade',
+            'receipt_shop_name' => 'Island Thrift',
             'tax_number' => 'COMPANY-GST',
             'receipt_gst_label' => 'GST No.',
             'receipt_footer' => 'Company footer',

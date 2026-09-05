@@ -8,7 +8,7 @@ use InvalidArgumentException;
 
 class ImportProductsFromCsvCommand extends Command
 {
-    protected $signature = 'micro-pos:import-products {company : Company UUID} {file : CSV file path}';
+    protected $signature = 'island-thrift:import-products {company : Company UUID} {file : CSV file path}';
 
     protected $description = 'Import products into a company catalog from a CSV file.';
 

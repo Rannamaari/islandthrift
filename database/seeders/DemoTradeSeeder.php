@@ -22,7 +22,7 @@ class DemoTradeSeeder extends Seeder
      */
     public function run(PurchaseService $purchaseService, SalesService $salesService): void
     {
-        $company = Company::query()->where('name', 'Micro POS Demo Company')->firstOrFail();
+        $company = Company::query()->where('name', 'Island Thrift Demo Company')->firstOrFail();
         $warehouse = Warehouse::query()
             ->where('company_id', $company->id)
             ->where('code', 'MAIN-WH')

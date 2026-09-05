@@ -83,7 +83,7 @@
     @if ($cashierShift->opening_notes || $cashierShift->closing_notes)
         <div class="note"><strong>Shift notes</strong><br>@if ($cashierShift->opening_notes) Opening: {{ $cashierShift->opening_notes }}<br>@endif @if ($cashierShift->closing_notes) Closing: {{ $cashierShift->closing_notes }}@endif</div>
     @endif
-    <footer class="footer">Generated from MicroNET POS cashier shift records. Powered by <strong>micronet.mv</strong></footer>
+    <footer class="footer">Generated from {{ config('app.name', 'Island Thrift') }} cashier shift records.</footer>
 </main>
 </body>
 </html>

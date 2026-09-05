@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\DB;
 
 class BenchmarkInventoryCommand extends Command
 {
-    protected $signature = 'micro-pos:benchmark-inventory {--company= : Company UUID to benchmark} {--warehouse= : Warehouse UUID to benchmark}';
+    protected $signature = 'island-thrift:benchmark-inventory {--company= : Company UUID to benchmark} {--warehouse= : Warehouse UUID to benchmark}';
 
     protected $description = 'Benchmark core inventory queries.';
 
@@ -19,7 +19,7 @@ class BenchmarkInventoryCommand extends Command
     {
         $company = $this->option('company')
             ? Company::query()->find($this->option('company'))
-            : Company::query()->where('name', 'Micro POS Demo Company')->first();
+            : Company::query()->where('name', 'Island Thrift Demo Company')->first();
 
         if (! $company) {
             $this->error('Benchmark company not found.');

@@ -46,7 +46,7 @@ class PosCheckoutInterfaceTest extends TestCase
             ->assertSee('pos-app', false)
             ->assertSee('<html lang="en" dir="ltr">', false)
             ->assertSee('"can_access_admin":false', false)
-            ->assertSee('Micro POS');
+            ->assertSee('Island Thrift');
     }
 
     #[Test]

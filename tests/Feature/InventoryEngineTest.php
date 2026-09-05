@@ -533,7 +533,7 @@ class InventoryEngineTest extends TestCase
     {
         $this->seed(DatabaseSeeder::class);
 
-        $company = Company::query()->where('name', 'Micro POS Demo Company')->firstOrFail();
+        $company = Company::query()->where('name', 'Island Thrift Demo Company')->firstOrFail();
         $warehouse = Warehouse::query()->where('company_id', $company->id)->where('code', 'MAIN-WH')->firstOrFail();
         $product = Product::query()->where('company_id', $company->id)->where('sku', 'COKE-500')->firstOrFail();
 

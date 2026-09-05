@@ -32,7 +32,7 @@ onBeforeUnmount(() => clearInterval(timer));
                         <span class="rounded-full bg-[var(--pos-accent)]/18 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-[var(--pos-accent-strong)]">Online</span>
                         <span class="text-sm text-[var(--pos-muted)]">Retail Checkout</span>
                     </div>
-                    <h1 class="font-[var(--font-display)] text-2xl font-bold tracking-tight text-white sm:text-3xl md:text-4xl">Micro POS</h1>
+                    <h1 class="font-[var(--font-display)] text-2xl font-bold tracking-tight text-white sm:text-3xl md:text-4xl">Island Thrift</h1>
                 </div>
                 <button
                     type="button"

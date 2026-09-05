@@ -489,7 +489,7 @@ class ProductCatalogFoundationTest extends TestCase
     {
         $this->seed(DatabaseSeeder::class);
 
-        $company = Company::query()->where('name', 'Micro POS Demo Company')->firstOrFail();
+        $company = Company::query()->where('name', 'Island Thrift Demo Company')->firstOrFail();
         $csv = $this->makeCsv([
             ['sku', 'name', 'barcode', 'category', 'brand', 'unit', 'cost_price', 'selling_price', 'wholesale_price', 'tax_rate', 'minimum_stock'],
             ['CSV-001', 'CSV Cola', 'CSVBAR001', 'Beverages', 'Coca-Cola', 'btl', '5.5', '9.5', '8.0', '8', '10'],
@@ -507,7 +507,7 @@ class ProductCatalogFoundationTest extends TestCase
     {
         $this->seed(DatabaseSeeder::class);
 
-        $company = Company::query()->where('name', 'Micro POS Demo Company')->firstOrFail();
+        $company = Company::query()->where('name', 'Island Thrift Demo Company')->firstOrFail();
         $csv = $this->makeCsv([
             ['sku', 'name', 'barcode', 'category', 'brand', 'unit', 'cost_price', 'selling_price'],
             ['COKE-500', 'Duplicate SKU', 'CSVBAR002', 'Beverages', 'Coca-Cola', 'btl', '5.5', '9.5'],
@@ -524,7 +524,7 @@ class ProductCatalogFoundationTest extends TestCase
     {
         $this->seed(DatabaseSeeder::class);
 
-        $company = Company::query()->where('name', 'Micro POS Demo Company')->firstOrFail();
+        $company = Company::query()->where('name', 'Island Thrift Demo Company')->firstOrFail();
         $csv = $this->makeCsv([
             ['sku', 'name', 'barcode', 'category', 'brand', 'unit', 'cost_price', 'selling_price'],
             ['CSV-002', 'Duplicate Barcode', '1234567890123', 'Beverages', 'Coca-Cola', 'btl', '5.5', '9.5'],
@@ -541,7 +541,7 @@ class ProductCatalogFoundationTest extends TestCase
     {
         $this->seed(DatabaseSeeder::class);
 
-        $company = Company::query()->where('name', 'Micro POS Demo Company')->firstOrFail();
+        $company = Company::query()->where('name', 'Island Thrift Demo Company')->firstOrFail();
         $warehouse = Warehouse::query()->where('company_id', $company->id)->firstOrFail();
         $csv = $this->makeCsv([
             ['sku', 'name', 'barcode', 'category', 'brand', 'unit', 'cost_price', 'selling_price', 'tax_rate', 'minimum_stock', 'initial_quantity', 'opening_unit_cost'],
@@ -567,7 +567,7 @@ class ProductCatalogFoundationTest extends TestCase
     {
         $this->seed(DatabaseSeeder::class);
 
-        $company = Company::query()->where('name', 'Micro POS Demo Company')->firstOrFail();
+        $company = Company::query()->where('name', 'Island Thrift Demo Company')->firstOrFail();
         $warehouse = Warehouse::query()->where('company_id', $company->id)->firstOrFail();
         $csv = $this->makeCsv([
             ['sku', 'name', 'barcode', 'category', 'brand', 'selling_price', 'initial_quantity'],
@@ -594,7 +594,7 @@ class ProductCatalogFoundationTest extends TestCase
         $this->seed(DatabaseSeeder::class);
         $this->seed(LargeProductCatalogSeeder::class);
 
-        $company = Company::query()->where('name', 'Micro POS Demo Company')->firstOrFail();
+        $company = Company::query()->where('name', 'Island Thrift Demo Company')->firstOrFail();
 
         $page = Product::query()
             ->with(['category', 'brand', 'unit', 'primaryBarcode'])
@@ -608,7 +608,7 @@ class ProductCatalogFoundationTest extends TestCase
 
     private function makeCsv(array $rows): string
     {
-        $path = tempnam(sys_get_temp_dir(), 'micro-pos-csv-');
+        $path = tempnam(sys_get_temp_dir(), 'island-thrift-csv-');
         $handle = fopen($path, 'wb');
 
         foreach ($rows as $row) {

@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Micronet POS | MOSCOW TRADE</title>
+    <title>{{ config('app.name', 'Island Thrift') }}</title>
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=dm-sans:400,500,600,700|playfair-display:600,700" rel="stylesheet">
     <style>
@@ -44,7 +44,7 @@
 <body>
 <div class="page">
     <nav>
-        <a class="brand" href="/"><span class="mark">M</span><span><small>MOSCOW TRADE</small>Micronet POS</span></a>
+        <a class="brand" href="/"><span class="mark">I</span><span><small>RETAIL MADE SIMPLE</small>Island Thrift</span></a>
         @auth
             <div class="nav-actions">
                 <a class="nav-link" href="{{ route('pos.index') }}">Open workspace</a>
@@ -56,16 +56,16 @@
         <section>
             <div class="eyebrow">Built for the counter</div>
             <h1>One calm system<br>for every <em>sale.</em></h1>
-            <p class="lead">Micronet POS keeps MOSCOW TRADE moving: fast checkout, accurate stock, and store-level pricing for wherever your customers find you.</p>
+            <p class="lead">Island Thrift keeps your business moving with fast checkout, accurate stock, and store-level pricing wherever your customers find you.</p>
             <div class="actions">
                 <a class="cta" href="{{ auth()->check() ? route('pos.index') : route('login') }}">{{ auth()->check() ? 'Open POS Screen' : 'Sign in to POS' }} <span aria-hidden="true">→</span></a>
                 <a class="secondary" href="{{ auth()->check() ? '/admin' : route('login') }}">{{ auth()->check() ? 'Manage back office' : 'Staff access only' }}</a>
             </div>
             <div class="features"><span><i></i>Fast barcode checkout</span><span><i></i>USD &amp; MVR stores</span><span><i></i>Live inventory</span></div>
         </section>
-        <aside class="terminal" aria-label="Micronet POS checkout preview">
+        <aside class="terminal" aria-label="Island Thrift checkout preview">
             <div class="screen">
-                <div class="screen-top"><span>Micronet POS</span><span>Airport Store · USD</span></div>
+                <div class="screen-top"><span>Island Thrift</span><span>Airport Store · USD</span></div>
                 <div class="store">Today's counter</div>
                 <div class="sale-line"><span>Matryoshka keyring <small>SKU · MY-104</small></span><strong>$12.00</strong></div>
                 <div class="sale-line"><span>City postcard set <small>SKU · MY-058</small></span><strong>$8.00</strong></div>
@@ -75,7 +75,7 @@
             </div>
         </aside>
     </main>
-    <footer><span>MICRONET POS · MOSCOW TRADE</span><span>Two stores. One clear view.</span></footer>
+    <footer><span>ISLAND THRIFT</span><span>Every store. One clear view.</span></footer>
 </div>
 </body>
 </html>

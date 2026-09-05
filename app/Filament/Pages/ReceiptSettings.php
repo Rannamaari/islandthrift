@@ -89,7 +89,7 @@ class ReceiptSettings extends Page
                             ->maxLength(1000),
                         Textarea::make('receipt_footer')
                             ->label('Footer Message')
-                            ->helperText('Printed above “Powered by micronet.mv”.')
+                            ->helperText('Printed at the bottom of each receipt.')
                             ->rows(3)
                             ->maxLength(1000),
                     ]),

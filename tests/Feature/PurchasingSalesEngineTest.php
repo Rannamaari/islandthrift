@@ -277,7 +277,7 @@ class PurchasingSalesEngineTest extends TestCase
     {
         $this->seed(DatabaseSeeder::class);
 
-        $company = Company::query()->where('name', 'Micro POS Demo Company')->firstOrFail();
+        $company = Company::query()->where('name', 'Island Thrift Demo Company')->firstOrFail();
         $this->assertDatabaseHas('customers', [
             'company_id' => $company->id,
             'code' => 'WALK-IN',
