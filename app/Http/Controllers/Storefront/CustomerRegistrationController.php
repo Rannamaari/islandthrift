@@ -38,7 +38,6 @@ class CustomerRegistrationController extends Controller
         $data = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'phone' => ['required', 'string', 'max:50'],
-            'email' => ['nullable', 'email', 'max:255'],
         ]);
         $phone = $normalizer->normalize($data['phone']);
 
@@ -66,7 +65,7 @@ class CustomerRegistrationController extends Controller
 
         $request->session()->put([
             'store_customer_otp_challenge' => $challenge->id,
-            'store_customer_pending' => ['name' => $data['name'], 'phone' => $phone, 'email' => $data['email'] ?? null],
+            'store_customer_pending' => ['name' => $data['name'], 'phone' => $phone],
         ]);
 
         if (config('services.dhiraagu_sms.dry_run')) {
@@ -110,7 +109,6 @@ class CustomerRegistrationController extends Controller
                 [
                     'code' => Customer::query()->where('company_id', $challenge->company_id)->where('phone', $challenge->phone)->value('code') ?: 'WEB-'.Str::upper(Str::random(10)),
                     'name' => $pending['name'],
-                    'email' => $pending['email'] ?: null,
                     'city' => 'Himmafushi',
                     'opening_balance' => 0,
                     'is_active' => true,

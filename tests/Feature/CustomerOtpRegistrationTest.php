@@ -19,10 +19,18 @@ class CustomerOtpRegistrationTest extends TestCase
         config()->set('services.dhiraagu_sms.dry_run', true);
         Http::preventStrayRequests();
 
+        $this->get(route('store.register'))
+            ->assertOk()
+            ->assertSee('Register or sign in by phone')
+            ->assertDontSee('name="email"', false);
+        $this->get(route('store.home'))
+            ->assertOk()
+            ->assertSee('>Register</a>', false)
+            ->assertDontSee('>Account</a>', false);
+
         $response = $this->post(route('store.register.otp'), [
             'name' => 'Test Customer',
             'phone' => '7779493',
-            'email' => 'customer@example.com',
         ]);
 
         $response->assertRedirect(route('store.register'))->assertSessionHasNoErrors();
@@ -36,6 +44,10 @@ class CustomerOtpRegistrationTest extends TestCase
         $this->assertNotNull($customer->phone_verified_at);
         $this->assertSame($customer->id, session('store_customer_id'));
         $this->assertDatabaseHas('sms_delivery_logs', ['purpose' => 'customer_otp', 'dry_run' => true]);
+        $this->get(route('store.home'))
+            ->assertOk()
+            ->assertSee('Account profile')
+            ->assertSee('Sign out');
     }
 
     public function test_invalid_phone_is_rejected_without_creating_sms_log(): void

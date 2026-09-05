@@ -1,6 +1,7 @@
 @php
     $store = app(\App\Services\StorefrontContext::class);
     $storeCompany = $store->company();
+    $storeCustomer = app(\App\Services\StorefrontCustomerSession::class)->customer(request(), $storeCompany);
     $cartCount = collect(session('store_cart', []))->sum();
     $logoCandidates = ['images/island-thrift/logo.webp', 'images/island-thrift/logo.png', 'images/island-thrift/logo.svg', 'logo.png', 'logo.svg'];
     $logoPath = collect($logoCandidates)->first(fn ($path) => file_exists(public_path($path)));
@@ -44,7 +45,6 @@
                 <a class="store-nav-link" href="{{ route('store.shop') }}#categories">Categories</a>
                 <a class="store-nav-link" href="{{ route('store.shop', ['sort' => 'newest']) }}">New Arrivals</a>
                 <a class="store-nav-link" href="{{ route('store.contact') }}">Contact</a>
-                <a class="store-nav-link" href="{{ route('store.register') }}">Account</a>
             </nav>
 
             <div class="ml-auto flex items-center gap-1.5 lg:ml-7">
@@ -59,14 +59,25 @@
                     <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3h2l2.4 11.2a2 2 0 0 0 2 1.6h7.8a2 2 0 0 0 2-1.6L21 7H6"/><circle cx="10" cy="20" r="1"/><circle cx="18" cy="20" r="1"/></svg>
                     @if($cartCount)<span class="absolute top-0 right-0 grid min-h-5 min-w-5 place-items-center rounded-full bg-rose-500 px-1 text-[10px] font-black text-white">{{ min(99, $cartCount) }}</span>@endif
                 </a>
-                <a href="{{ route('store.shop') }}" class="store-button-primary hidden px-5 py-2.5 sm:inline-flex">Shop</a>
+                @if($storeCustomer)
+                    <details class="relative hidden sm:block">
+                        <summary class="store-button-primary cursor-pointer list-none px-5 py-2.5">{{ \Illuminate\Support\Str::before($storeCustomer->name, ' ') }}</summary>
+                        <div class="absolute right-0 mt-3 w-56 rounded-2xl border border-slate-200 bg-white p-2 text-sm shadow-2xl">
+                            <div class="border-b border-slate-100 px-3 py-2"><strong class="block truncate">{{ $storeCustomer->name }}</strong><small class="text-slate-500">{{ $storeCustomer->phone }}</small></div>
+                            <a class="store-mobile-link mt-1 block" href="{{ route('store.register') }}">Account profile</a>
+                            <form method="POST" action="{{ route('store.customer.logout') }}">@csrf<button class="store-mobile-link w-full text-left text-rose-600">Sign out</button></form>
+                        </div>
+                    </details>
+                @else
+                    <a href="{{ route('store.register') }}" class="store-button-primary hidden px-5 py-2.5 sm:inline-flex">Register</a>
+                @endif
                 <details class="relative lg:hidden">
                     <summary class="grid h-11 w-11 cursor-pointer list-none place-items-center rounded-full hover:bg-slate-100" aria-label="Open menu">
                         <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
                     </summary>
                     <div class="absolute right-0 mt-3 w-72 rounded-3xl border border-slate-200 bg-white p-4 shadow-2xl">
                         <form action="{{ route('store.shop') }}" class="mb-3"><input name="q" placeholder="Search products" class="store-input"></form>
-                        <nav class="grid gap-1 text-sm font-semibold"><a class="store-mobile-link" href="{{ route('store.home') }}">Home</a><a class="store-mobile-link" href="{{ route('store.shop') }}">Shop</a><a class="store-mobile-link" href="{{ route('store.shop', ['sort' => 'newest']) }}">New Arrivals</a><a class="store-mobile-link" href="{{ route('store.contact') }}">Contact</a><a class="store-mobile-link" href="{{ route('store.register') }}">Customer Account</a></nav>
+                        <nav class="grid gap-1 text-sm font-semibold"><a class="store-mobile-link" href="{{ route('store.home') }}">Home</a><a class="store-mobile-link" href="{{ route('store.shop') }}">Shop</a><a class="store-mobile-link" href="{{ route('store.shop', ['sort' => 'newest']) }}">New Arrivals</a><a class="store-mobile-link" href="{{ route('store.contact') }}">Contact</a>@if($storeCustomer)<a class="store-mobile-link" href="{{ route('store.register') }}">Account profile</a><form method="POST" action="{{ route('store.customer.logout') }}">@csrf<button class="store-mobile-link w-full text-left text-rose-600">Sign out</button></form>@else<a class="store-mobile-link" href="{{ route('store.register') }}">Register</a>@endif</nav>
                     </div>
                 </details>
             </div>

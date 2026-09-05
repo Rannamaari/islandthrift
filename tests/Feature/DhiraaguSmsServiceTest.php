@@ -71,6 +71,7 @@ class DhiraaguSmsServiceTest extends TestCase
 
     public function test_admin_can_open_sms_page(): void
     {
+        config()->set('services.dhiraagu_sms.dry_run', true);
         $this->seed(DatabaseSeeder::class);
         $admin = User::query()->where('email', 'admin@islandthrift.local')->firstOrFail();
 

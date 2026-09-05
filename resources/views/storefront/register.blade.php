@@ -30,7 +30,6 @@
             <form class="mt-7 space-y-5" method="POST" action="{{ route('store.register.otp') }}">@csrf
                 <label class="store-label block">Full name<input class="store-input mt-1.5" name="name" value="{{ old('name') }}" required></label>
                 <label class="store-label block">Phone number<input class="store-input mt-1.5" type="tel" name="phone" value="{{ old('phone') }}" placeholder="7779493" required></label>
-                <label class="store-label block">Email <span class="font-normal text-slate-400">(optional)</span><input class="store-input mt-1.5" type="email" name="email" value="{{ old('email') }}"></label>
                 <button class="store-button-primary w-full justify-center py-3.5">Send verification code</button>
             </form>
         </div>
