@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Enums\StockMovementType;
 use App\Filament\Resources\Products\Pages\CreateProduct;
+use App\Filament\Resources\Products\Pages\EditProduct;
 use App\Filament\Resources\Purchases\Pages\ViewPurchase;
 use App\Models\Company;
 use App\Models\InventoryBalance;
@@ -251,6 +252,54 @@ class BackOfficeManagementUiTest extends TestCase
             ->assertSee($product->name)
             ->assertSee('SKU: '.$product->sku)
             ->assertDontSee('Other Company Product');
+    }
+
+    #[Test]
+    public function product_can_be_updated_without_changing_its_unique_sku(): void
+    {
+        $warehouse = Warehouse::factory()->create();
+        $user = $this->userWithRole('admin', $warehouse);
+        $product = Product::factory()->create([
+            'company_id' => $warehouse->company_id,
+            'unit_id' => Unit::factory()->create()->id,
+            'sku' => 'ONLINE-PRICE-001',
+            'sale_price' => null,
+        ]);
+
+        Livewire::actingAs($user)
+            ->test(EditProduct::class, ['record' => $product->id])
+            ->fillForm(['sale_price' => 125])
+            ->call('save')
+            ->assertHasNoFormErrors();
+
+        $this->assertSame('ONLINE-PRICE-001', $product->fresh()->sku);
+        $this->assertSame('125.0000', $product->fresh()->sale_price);
+    }
+
+    #[Test]
+    public function product_update_still_rejects_another_products_sku(): void
+    {
+        $warehouse = Warehouse::factory()->create();
+        $user = $this->userWithRole('admin', $warehouse);
+        $unit = Unit::factory()->create();
+        $product = Product::factory()->create([
+            'company_id' => $warehouse->company_id,
+            'unit_id' => $unit->id,
+            'sku' => 'EDITABLE-001',
+        ]);
+        Product::factory()->create([
+            'company_id' => $warehouse->company_id,
+            'unit_id' => $unit->id,
+            'sku' => 'TAKEN-001',
+        ]);
+
+        Livewire::actingAs($user)
+            ->test(EditProduct::class, ['record' => $product->id])
+            ->fillForm(['sku' => 'TAKEN-001'])
+            ->call('save')
+            ->assertHasFormErrors(['sku' => 'unique']);
+
+        $this->assertSame('EDITABLE-001', $product->fresh()->sku);
     }
 
     #[Test]
