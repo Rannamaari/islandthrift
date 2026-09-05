@@ -19,7 +19,7 @@
     <div class="flex flex-1 flex-col p-4 sm:p-5">
         <p class="mb-1 text-[11px] font-bold uppercase tracking-[.14em] text-indigo-600">{{ $product->category?->name ?? 'Gadgets' }}</p>
         <h3 class="line-clamp-2 min-h-12 text-base font-extrabold leading-6 text-slate-900"><a href="{{ route('store.product', $product->slug) }}">{{ $product->name }}</a></h3>
-        <div class="mt-3 flex flex-wrap items-baseline gap-2"><strong class="text-lg text-slate-950">{{ $product->branchPrices->first()?->currency ?? 'MVR' }} {{ number_format($price, 2) }}</strong>@if($price < $regularPrice)<del class="text-xs text-slate-400">{{ number_format($regularPrice, 2) }}</del>@endif</div>
+        <div class="mt-3 flex flex-wrap items-baseline gap-x-2 gap-y-1"><strong class="text-lg text-slate-950">{{ $product->branchPrices->first()?->currency ?? 'MVR' }} {{ number_format($price, 2) }}</strong>@if($price < $regularPrice)<del class="text-xs text-slate-400">{{ number_format($regularPrice, 2) }}</del>@endif<span class="text-[10px] font-semibold text-slate-400">GST inclusive</span></div>
         <p class="mt-2 text-xs font-semibold {{ $stock > 0 ? ($stock <= (float) $product->minimum_stock ? 'text-amber-600' : 'text-emerald-600') : 'text-rose-600' }}">{{ $stock > 0 ? ($stock <= (float) $product->minimum_stock ? 'Low stock' : 'In stock') : 'Out of stock' }}</p>
         <div class="mt-auto grid grid-cols-[1fr_auto] gap-2 pt-4">
             <form method="POST" action="{{ route('store.cart.add') }}">@csrf<input type="hidden" name="product_id" value="{{ $product->id }}"><input type="hidden" name="quantity" value="1"><button class="store-button-primary w-full px-3 py-2.5 text-sm" @disabled($stock <= 0)>Add to Cart</button></form>

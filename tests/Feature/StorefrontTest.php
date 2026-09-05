@@ -19,9 +19,9 @@ class StorefrontTest extends TestCase
         $online = Product::query()->where('sku', 'GALAXY-A16')->firstOrFail();
         $offline = Product::query()->where('sku', 'COKE-500')->firstOrFail();
 
-        $this->get(route('store.home'))->assertOk()->assertSee($online->name)->assertDontSee($offline->name);
-        $this->get(route('store.shop'))->assertOk()->assertSee($online->name)->assertDontSee($offline->name);
-        $this->get(route('store.product', $online->slug))->assertOk()->assertSee($online->name);
+        $this->get(route('store.home'))->assertOk()->assertSee($online->name)->assertSee('GST inclusive')->assertDontSee($offline->name);
+        $this->get(route('store.shop'))->assertOk()->assertSee($online->name)->assertSee('GST inclusive')->assertDontSee($offline->name);
+        $this->get(route('store.product', $online->slug))->assertOk()->assertSee($online->name)->assertSee('GST inclusive');
         $this->get('/products/'.$offline->slug)->assertNotFound();
     }
 
