@@ -1,0 +1,36 @@
+<x-filament-panels::page>
+    <div class="space-y-6">
+        <div class="rounded-xl border border-gray-200 bg-white p-5 dark:border-white/10 dark:bg-white/5">
+            <div class="flex flex-wrap items-center justify-between gap-3"><div><h2 class="text-lg font-semibold">Dhiraagu SMS</h2><p class="mt-1 text-sm text-gray-600 dark:text-gray-300">Numbers are normalized to 960XXXXXXX, duplicates are removed, and invalid numbers are skipped.</p></div><span class="rounded-full px-3 py-1 text-xs font-bold {{ config('services.dhiraagu_sms.dry_run') ? 'bg-warning-100 text-warning-800' : 'bg-success-100 text-success-800' }}">{{ config('services.dhiraagu_sms.dry_run') ? 'DRY RUN — no real messages' : 'LIVE SMS' }}</span></div>
+        </div>
+
+        <form wire:submit="reviewSms" class="space-y-5 rounded-xl border border-gray-200 bg-white p-5 dark:border-white/10 dark:bg-white/5">
+            <label class="block text-sm font-medium">Manual numbers<textarea wire:model="manualNumbers" rows="3" placeholder="7779493, 9607777777" class="mt-1 w-full rounded-lg border-gray-300 dark:border-white/15 dark:bg-gray-900"></textarea></label>
+            <label class="flex items-center gap-3 text-sm font-medium"><input wire:model.live="sendAllCustomers" type="checkbox" class="rounded border-gray-300"> Send to all active customers</label>
+
+            @if($sendAllCustomers)
+                <div x-data="{q:''}" class="space-y-2"><label class="text-sm font-medium">Exclude individual customers</label><input x-model="q" placeholder="Search customers" class="w-full rounded-lg border-gray-300 dark:border-white/15 dark:bg-gray-900"><div class="max-h-52 space-y-1 overflow-auto rounded-lg border border-gray-200 p-3 dark:border-white/10">@forelse($this->customerOptions() as $id=>$label)<label x-show='{{ \Illuminate\Support\Js::from(strtolower($label)) }}.includes(q.toLowerCase())' class="flex gap-2 py-1 text-sm"><input type="checkbox" wire:model="excludedCustomerIds" value="{{ $id }}"> {{ $label }}</label>@empty<p class="text-sm text-gray-500">No customers with phone numbers.</p>@endforelse</div></div>
+            @else
+                <div x-data="{q:''}" class="space-y-2"><label class="text-sm font-medium">Select customers</label><input x-model="q" placeholder="Search customers" class="w-full rounded-lg border-gray-300 dark:border-white/15 dark:bg-gray-900"><div class="max-h-52 space-y-1 overflow-auto rounded-lg border border-gray-200 p-3 dark:border-white/10">@forelse($this->customerOptions() as $id=>$label)<label x-show='{{ \Illuminate\Support\Js::from(strtolower($label)) }}.includes(q.toLowerCase())' class="flex gap-2 py-1 text-sm"><input type="checkbox" wire:model="customerIds" value="{{ $id }}"> {{ $label }}</label>@empty<p class="text-sm text-gray-500">No customers with phone numbers.</p>@endforelse</div></div>
+            @endif
+
+            <div x-data="{q:''}" class="space-y-2"><label class="text-sm font-medium">Select staff users</label><input x-model="q" placeholder="Search users" class="w-full rounded-lg border-gray-300 dark:border-white/15 dark:bg-gray-900"><div class="max-h-40 space-y-1 overflow-auto rounded-lg border border-gray-200 p-3 dark:border-white/10">@forelse($this->userOptions() as $id=>$label)<label x-show='{{ \Illuminate\Support\Js::from(strtolower($label)) }}.includes(q.toLowerCase())' class="flex gap-2 py-1 text-sm"><input type="checkbox" wire:model="userIds" value="{{ $id }}"> {{ $label }}</label>@empty<p class="text-sm text-gray-500">Add phone numbers to staff profiles to select them here.</p>@endforelse</div></div>
+
+            <label class="block text-sm font-medium">Message<textarea wire:model="message" rows="5" maxlength="1000" required class="mt-1 w-full rounded-lg border-gray-300 dark:border-white/15 dark:bg-gray-900"></textarea></label>
+            @error('manualNumbers')<p class="text-sm text-danger-600">{{ $message }}</p>@enderror @error('message')<p class="text-sm text-danger-600">{{ $message }}</p>@enderror
+            <x-filament::button type="submit" wire:loading.attr="disabled">{{ config('services.dhiraagu_sms.dry_run') ? 'Send dry-run test' : 'Review recipients' }}</x-filament::button>
+        </form>
+
+        @if($recipientPreview)
+            <section class="rounded-xl border border-gray-200 bg-white p-5 dark:border-white/10 dark:bg-white/5"><h2 class="text-lg font-semibold">Selected recipients ({{ count($recipientPreview) }})</h2><div class="mt-3 max-h-64 overflow-auto"><table class="w-full text-sm"><thead class="text-left text-gray-500"><tr><th class="p-2">Type</th><th class="p-2">Name</th><th class="p-2">Number</th></tr></thead><tbody>@foreach($recipientPreview as $recipient)<tr class="border-t border-gray-100 dark:border-white/10"><td class="p-2">{{ $recipient['type'] }}</td><td class="p-2">{{ $recipient['name'] }}</td><td class="p-2 font-mono">{{ $recipient['phone'] }}</td></tr>@endforeach</tbody></table></div>@if($invalidPreview)<p class="mt-3 text-sm text-danger-600">Skipped invalid numbers: {{ implode(', ', $invalidPreview) }}</p>@endif</section>
+        @endif
+
+        @if($pendingConfirmation)
+            <section class="rounded-xl border-2 border-danger-300 bg-danger-50 p-5 dark:bg-danger-500/10"><h2 class="font-semibold text-danger-800">Confirm real broadcast</h2><p class="mt-1 text-sm text-danger-700">This will send a real SMS to {{ count($confirmedRecipients) }} recipient(s) and may incur charges.</p><x-filament::button class="mt-4" color="danger" wire:click="confirmSend" wire:confirm="Send this real SMS broadcast now?">Confirm and send real SMS</x-filament::button></section>
+        @endif
+
+        @if($lastResult)<div class="rounded-xl bg-gray-100 p-4 text-sm dark:bg-white/5">Sent: <strong>{{ $lastResult['sent'] }}</strong> · Failed: <strong>{{ $lastResult['failed'] }}</strong> · Invalid: <strong>{{ $lastResult['invalid'] }}</strong></div>@endif
+
+        <section class="rounded-xl border border-gray-200 bg-white p-5 dark:border-white/10 dark:bg-white/5"><h2 class="text-lg font-semibold">Recent delivery logs</h2><div class="mt-3 overflow-x-auto"><table class="min-w-[850px] w-full text-sm"><thead class="text-left text-gray-500"><tr><th class="p-2">Time</th><th class="p-2">Purpose</th><th class="p-2">Mode</th><th class="p-2">HTTP</th><th class="p-2">Recipients</th><th class="p-2">Sent</th><th class="p-2">Failed</th><th class="p-2">Transaction</th><th class="p-2">Status</th></tr></thead><tbody>@forelse($this->recentLogs() as $log)<tr class="border-t border-gray-100 dark:border-white/10"><td class="p-2">{{ $log->sent_at?->format('d M Y H:i') }}</td><td class="p-2">{{ str_replace('_',' ',$log->purpose) }}</td><td class="p-2">{{ $log->dry_run ? 'Dry run' : 'Live' }}</td><td class="p-2">{{ $log->http_status ?? '—' }}</td><td class="p-2">{{ $log->recipient_count }}</td><td class="p-2">{{ $log->sent_count }}</td><td class="p-2">{{ $log->failed_count }}</td><td class="p-2 font-mono text-xs">{{ $log->transaction_id ?? '—' }}</td><td class="p-2 {{ $log->successful ? 'text-success-600' : 'text-danger-600' }}">{{ $log->successful ? 'Successful' : 'Failed' }}</td></tr>@empty<tr><td class="p-3 text-gray-500" colspan="9">No SMS delivery attempts yet.</td></tr>@endforelse</tbody></table></div></section>
+    </div>
+</x-filament-panels::page>

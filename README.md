@@ -114,6 +114,29 @@ curl --fail https://islandthrift.micronet.mv/up
 
 Do not run `php artisan migrate --seed` in production because the demo seeder creates sample products and known development passwords.
 
+## Dhiraagu SMS and customer OTP
+
+SMS is dry-run by default. Configure these values in `.env` only; never commit a real authorization key:
+
+```env
+DHIRAAGU_SMS_BASE_URL=https://messaging.dhiraagu.com.mv/v1/api
+DHIRAAGU_SMS_AUTH_KEY=<base64-of-dhiraagu-username-and-password>
+DHIRAAGU_SMS_SOURCE=Micronet
+DHIRAAGU_SMS_DRY_RUN=true
+DHIRAAGU_SMS_CHUNK_SIZE=200
+DHIRAAGU_SMS_TIMEOUT=20
+```
+
+For local testing, leave dry-run enabled, visit `/register`, submit a valid-format Maldives number, and use the dry-run code displayed on the verification page. Administrators can test broadcasts under **Administration → SMS Messaging**; no gateway request is made in dry-run mode. In production, customer OTP registration remains unavailable while dry-run is enabled. Add rotated, valid credentials and set `DHIRAAGU_SMS_DRY_RUN=false` only when ready to send real messages, then run `php artisan optimize`.
+
+Gateway request example using placeholders only:
+
+```bash
+curl --request POST 'https://messaging.dhiraagu.com.mv/v1/api/sms' \
+  --header 'Content-Type: application/json' \
+  --data '{"destination":["9607779493"],"content":"Your message here","source":"Micronet","authorizationKey":"<base64-authorization-key>"}'
+```
+
 ## License
 
 This project is proprietary unless a separate license is provided by the repository owner.

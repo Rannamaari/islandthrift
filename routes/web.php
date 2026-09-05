@@ -6,6 +6,7 @@ use App\Http\Controllers\PosApiController;
 use App\Http\Controllers\PosPageController;
 use App\Http\Controllers\Storefront\CartController;
 use App\Http\Controllers\Storefront\CheckoutController;
+use App\Http\Controllers\Storefront\CustomerRegistrationController;
 use App\Http\Controllers\Storefront\HomeController;
 use App\Http\Controllers\Storefront\OrderController;
 use App\Http\Controllers\Storefront\ProductController;
@@ -25,6 +26,10 @@ Route::patch('/cart/{productId}', [CartController::class, 'update'])->name('stor
 Route::delete('/cart/{productId}', [CartController::class, 'destroy'])->name('store.cart.remove');
 Route::get('/checkout', [CheckoutController::class, 'create'])->name('store.checkout');
 Route::post('/checkout', [CheckoutController::class, 'store'])->middleware('throttle:10,1')->name('store.checkout.place');
+Route::get('/register', [CustomerRegistrationController::class, 'show'])->name('store.register');
+Route::post('/register/otp', [CustomerRegistrationController::class, 'requestOtp'])->middleware('throttle:3,1')->name('store.register.otp');
+Route::post('/register/verify', [CustomerRegistrationController::class, 'verify'])->middleware('throttle:10,1')->name('store.register.verify');
+Route::post('/customer/logout', [CustomerRegistrationController::class, 'logout'])->name('store.customer.logout');
 Route::get('/order/{token}', OrderController::class)->name('store.order');
 Route::view('/contact', 'storefront.contact')->name('store.contact');
 Route::get('/sitemap.xml', function (StorefrontCatalog $catalog) {

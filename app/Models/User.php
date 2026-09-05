@@ -33,6 +33,7 @@ class User extends Authenticatable implements FilamentUser
         'warehouse_id',
         'name',
         'email',
+        'phone',
         'password',
         'is_active',
         'last_login_at',

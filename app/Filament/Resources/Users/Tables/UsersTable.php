@@ -19,6 +19,7 @@ class UsersTable
             ->columns([
                 TextColumn::make('name')->searchable()->sortable(),
                 TextColumn::make('email')->searchable()->sortable(),
+                TextColumn::make('phone')->searchable()->toggleable(),
                 TextColumn::make('branch.name')->toggleable(),
                 TextColumn::make('warehouse.name')->toggleable(),
                 TextColumn::make('roles.name')

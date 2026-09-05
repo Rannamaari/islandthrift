@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\CustomerTransactionType;
 use Database\Factories\CustomerFactory;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -22,6 +23,7 @@ class Customer extends Model
         'code',
         'name',
         'phone',
+        'phone_verified_at',
         'email',
         'registration_number',
         'tax_number',
@@ -42,6 +44,7 @@ class Customer extends Model
         return [
             'credit_limit' => 'decimal:4',
             'opening_balance' => 'decimal:4',
+            'phone_verified_at' => 'datetime',
             'is_active' => 'boolean',
             'is_walk_in' => 'boolean',
         ];
@@ -66,7 +69,7 @@ class Customer extends Model
                 CustomerTransaction::query()->create([
                     'company_id' => $customer->company_id,
                     'customer_id' => $customer->id,
-                    'type' => \App\Enums\CustomerTransactionType::OpeningBalance,
+                    'type' => CustomerTransactionType::OpeningBalance,
                     'amount' => $customer->opening_balance,
                     'reference_type' => self::class,
                     'reference_id' => $customer->id,

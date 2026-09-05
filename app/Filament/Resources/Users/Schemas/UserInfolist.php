@@ -4,9 +4,9 @@ namespace App\Filament\Resources\Users\Schemas;
 
 use Filament\Infolists\Components\IconEntry;
 use Filament\Infolists\Components\TextEntry;
-use Filament\Schemas\Schema;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
+use Filament\Schemas\Schema;
 
 class UserInfolist
 {
@@ -20,6 +20,7 @@ class UserInfolist
                             ->schema([
                                 TextEntry::make('name'),
                                 TextEntry::make('email'),
+                                TextEntry::make('phone'),
                                 TextEntry::make('company.name'),
                                 TextEntry::make('branch.name'),
                                 TextEntry::make('warehouse.name'),

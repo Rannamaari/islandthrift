@@ -44,6 +44,7 @@
                 <a class="store-nav-link" href="{{ route('store.shop') }}#categories">Categories</a>
                 <a class="store-nav-link" href="{{ route('store.shop', ['sort' => 'newest']) }}">New Arrivals</a>
                 <a class="store-nav-link" href="{{ route('store.contact') }}">Contact</a>
+                <a class="store-nav-link" href="{{ route('store.register') }}">Account</a>
             </nav>
 
             <div class="ml-auto flex items-center gap-1.5 lg:ml-7">
@@ -65,7 +66,7 @@
                     </summary>
                     <div class="absolute right-0 mt-3 w-72 rounded-3xl border border-slate-200 bg-white p-4 shadow-2xl">
                         <form action="{{ route('store.shop') }}" class="mb-3"><input name="q" placeholder="Search products" class="store-input"></form>
-                        <nav class="grid gap-1 text-sm font-semibold"><a class="store-mobile-link" href="{{ route('store.home') }}">Home</a><a class="store-mobile-link" href="{{ route('store.shop') }}">Shop</a><a class="store-mobile-link" href="{{ route('store.shop', ['sort' => 'newest']) }}">New Arrivals</a><a class="store-mobile-link" href="{{ route('store.contact') }}">Contact</a></nav>
+                        <nav class="grid gap-1 text-sm font-semibold"><a class="store-mobile-link" href="{{ route('store.home') }}">Home</a><a class="store-mobile-link" href="{{ route('store.shop') }}">Shop</a><a class="store-mobile-link" href="{{ route('store.shop', ['sort' => 'newest']) }}">New Arrivals</a><a class="store-mobile-link" href="{{ route('store.contact') }}">Contact</a><a class="store-mobile-link" href="{{ route('store.register') }}">Customer Account</a></nav>
                     </div>
                 </details>
             </div>

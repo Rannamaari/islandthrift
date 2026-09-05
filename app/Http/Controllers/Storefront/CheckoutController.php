@@ -7,9 +7,11 @@ use App\Exceptions\InventoryException;
 use App\Exceptions\TransactionException;
 use App\Http\Controllers\Controller;
 use App\Models\Customer;
+use App\Services\MaldivesPhoneNormalizer;
 use App\Services\SalesService;
 use App\Services\StorefrontCatalog;
 use App\Services\StorefrontContext;
+use App\Services\StorefrontCustomerSession;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -19,7 +21,7 @@ use Illuminate\Validation\Rule;
 
 class CheckoutController extends Controller
 {
-    public function create(StorefrontCatalog $catalog, StorefrontContext $context): View|RedirectResponse
+    public function create(Request $request, StorefrontCatalog $catalog, StorefrontContext $context, StorefrontCustomerSession $customerSession): View|RedirectResponse
     {
         $summary = $this->cartSummary($catalog);
 
@@ -32,10 +34,11 @@ class CheckoutController extends Controller
             'company' => $context->company(),
             'deliveryMethods' => $context->deliveryMethods(),
             'paymentMethods' => $context->paymentMethods(),
+            'registeredCustomer' => $customerSession->customer($request, $context->company()),
         ]);
     }
 
-    public function store(Request $request, StorefrontCatalog $catalog, StorefrontContext $context, SalesService $sales): RedirectResponse
+    public function store(Request $request, StorefrontCatalog $catalog, StorefrontContext $context, StorefrontCustomerSession $customerSession, MaldivesPhoneNormalizer $normalizer, SalesService $sales): RedirectResponse
     {
         $deliveryMethods = $context->deliveryMethods();
         $paymentMethods = $context->paymentMethods();
@@ -48,6 +51,15 @@ class CheckoutController extends Controller
             'notes' => ['nullable', 'string', 'max:2000'],
             'payment_method' => ['required', Rule::in(array_keys($paymentMethods))],
         ]);
+
+        $registeredCustomer = $customerSession->customer($request, $context->company());
+        $normalizedPhone = $registeredCustomer?->phone ?: $normalizer->normalize($data['phone']);
+
+        if ($normalizedPhone === null) {
+            return back()->withInput()->withErrors(['phone' => 'Enter a valid 7-digit Maldives phone number.']);
+        }
+
+        $data['phone'] = $normalizedPhone;
 
         $summary = $this->cartSummary($catalog);
 
@@ -64,7 +76,7 @@ class CheckoutController extends Controller
         $company = $context->company();
         $branch = $context->branch();
         $warehouse = $context->warehouse();
-        $customer = Customer::query()
+        $customer = $registeredCustomer ?: Customer::query()
             ->where('company_id', $company->id)
             ->where('is_walk_in', false)
             ->where('phone', $data['phone'])
