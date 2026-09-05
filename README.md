@@ -92,7 +92,7 @@ ISLAND_THRIFT_DIR=/var/www/islandthrift bash deploy/deploy.sh
 
 The deployment script installs production dependencies, builds assets, places Laravel briefly into maintenance mode, runs migrations without demo seeders, creates the public storage link, caches the application configuration, and restarts queue workers. If the application is already installed elsewhere, set `ISLAND_THRIFT_DIR` to that directory.
 
-Install the included Nginx and queue worker templates after replacing their domain, PHP-FPM socket, and application paths if needed:
+Install the included Nginx and queue worker templates. They target this droplet's PHP 8.4 socket and `/var/www/islandthrift`; adjust those values first if the server layout changes:
 
 ```bash
 sudo cp deploy/nginx-islandthrift.conf /etc/nginx/sites-available/islandthrift
