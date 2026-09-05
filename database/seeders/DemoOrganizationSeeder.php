@@ -50,7 +50,7 @@ class DemoOrganizationSeeder extends Seeder
             'website_enabled' => true,
             'city' => 'Himmafushi',
             'country' => 'Maldives',
-            'website_delivery_methods' => ['pickup' => 'Store Pickup', 'local_delivery' => 'Local Delivery'],
+            'website_delivery_methods' => ['pickup' => 'Store Pickup', 'local_delivery' => 'Himmafushi / Malé Delivery'],
             'website_payment_methods' => ['cash' => 'Cash / Pay on Collection', 'bank_transfer' => 'Bank Transfer'],
         ]);
 

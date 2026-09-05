@@ -11,7 +11,7 @@
             <h1 class="mt-5 text-4xl font-black leading-[1.04] tracking-[-.045em] text-white sm:text-6xl lg:text-7xl">Tech you want.<br><span class="text-cyan-300">Right here in Himmafushi.</span></h1>
             <p class="mt-6 max-w-xl text-base leading-7 text-indigo-100 sm:text-lg">Shop phones, laptops, speakers, accessories and everyday gadgets from Island Thrift.</p>
             <div class="mt-8 flex flex-wrap gap-3"><a href="{{ route('store.shop') }}" class="store-hero-button">Shop Now</a><a href="#featured" class="store-hero-secondary">Explore Products</a></div>
-            <div class="mt-9 flex flex-wrap gap-x-7 gap-y-3 text-xs font-bold uppercase tracking-[.12em] text-indigo-200"><span>● Local in Himmafushi</span><span>● One shared inventory</span></div>
+            <div class="mt-9 flex flex-wrap gap-x-7 gap-y-3 text-xs font-bold uppercase tracking-[.12em] text-indigo-200"><span>● Local in Himmafushi</span><span>● Island-wide & Malé delivery</span></div>
         </div>
         <div class="store-device-stage mt-10 lg:mt-0" aria-hidden="true">
             <div class="store-device store-device-phone"><div></div></div>
