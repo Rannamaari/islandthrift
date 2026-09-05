@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\SaleStatus;
 use Database\Factories\SaleFactory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -74,6 +75,31 @@ class Sale extends Model
             'receipt_snapshot' => 'array',
             'delivery_charge' => 'decimal:4',
         ];
+    }
+
+    public function scopeReportable(Builder $query): Builder
+    {
+        return static::constrainToReportable($query);
+    }
+
+    public static function constrainToReportable(Builder $query, string $table = 'sales'): Builder
+    {
+        return $query
+            ->whereIn("{$table}.status", [
+                SaleStatus::Completed->value,
+                SaleStatus::Refunded->value,
+                SaleStatus::PartiallyRefunded->value,
+            ])
+            ->where(function (Builder $sales) use ($table): void {
+                $sales->where(function (Builder $posSales) use ($table): void {
+                    $posSales->whereNull("{$table}.sales_channel")
+                        ->orWhere("{$table}.sales_channel", '!=', 'website');
+                })->orWhere(function (Builder $websiteSales) use ($table): void {
+                    $websiteSales->where("{$table}.sales_channel", 'website')
+                        ->where("{$table}.order_status", 'completed')
+                        ->where("{$table}.payment_status", 'paid');
+                });
+            });
     }
 
     public function company(): BelongsTo

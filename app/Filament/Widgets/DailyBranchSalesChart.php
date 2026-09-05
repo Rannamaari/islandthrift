@@ -34,9 +34,9 @@ class DailyBranchSalesChart extends ChartWidget
         $dates = collect(range(0, 13))->map(fn (int $day): Carbon => today()->subDays(13 - $day));
         $totals = $branch
             ? Sale::query()
+                ->reportable()
                 ->where('company_id', $companyId)
                 ->where('branch_id', $branch->id)
-                ->whereIn('status', ['completed', 'refunded', 'partially_refunded'])
                 ->whereDate('sale_date', '>=', $start)
                 ->selectRaw('sale_date, COALESCE(SUM(grand_total), 0) as total')
                 ->groupBy('sale_date')

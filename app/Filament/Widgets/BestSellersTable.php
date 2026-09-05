@@ -4,6 +4,7 @@ namespace App\Filament\Widgets;
 
 use App\Filament\Support\AdminSupport;
 use App\Models\Product;
+use App\Models\Sale;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Filament\Widgets\TableWidget;
@@ -38,13 +39,14 @@ class BestSellersTable extends TableWidget
             return Product::query()->whereRaw('1 = 0');
         }
 
-        return Product::query()
+        $query = Product::query()
             ->where('products.company_id', $companyId)
             ->join('sale_items', 'sale_items.product_id', '=', 'products.id')
             ->join('sales', 'sales.id', '=', 'sale_items.sale_id')
             ->where('sales.warehouse_id', $warehouseId)
-            ->whereIn('sales.status', ['completed', 'refunded', 'partially_refunded'])
-            ->whereDate('sales.sale_date', '>=', today()->subDays(29)->toDateString())
+            ->whereDate('sales.sale_date', '>=', today()->subDays(29)->toDateString());
+
+        return Sale::constrainToReportable($query)
             ->select('products.*')
             ->selectRaw('SUM(sale_items.quantity) as quantity_sold')
             ->selectRaw('SUM(sale_items.line_total) as sales_total')

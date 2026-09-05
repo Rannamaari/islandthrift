@@ -3,7 +3,7 @@
 namespace App\Filament\Widgets;
 
 use App\Filament\Support\AdminSupport;
-use App\Models\InventoryBalance;
+use App\Models\Branch;
 use App\Models\Purchase;
 use App\Models\Sale;
 use App\Models\SaleItem;
@@ -27,22 +27,23 @@ class OperationsOverview extends StatsOverviewWidget
 
         $warehouseId = AdminSupport::activeWarehouseId();
         $currency = $warehouseId ? Warehouse::query()->where('company_id', $companyId)->whereKey($warehouseId)->value('branch_id') : null;
-        $currency = $currency ? \App\Models\Branch::query()->find($currency)?->currency : null;
+        $currency = $currency ? Branch::query()->find($currency)?->currency : null;
 
         $todaySalesQuery = Sale::query()
+            ->reportable()
             ->where('company_id', $companyId)
             ->when($warehouseId, fn ($query) => $query->where('warehouse_id', $warehouseId))
-            ->whereIn('status', ['completed', 'refunded', 'partially_refunded'])
             ->whereDate('sale_date', today());
 
         $todaySales = (float) $todaySalesQuery->sum('grand_total');
         $todayTransactions = (int) (clone $todaySalesQuery)->count();
 
-        $grossProfit = (float) SaleItem::query()
+        $grossProfitQuery = SaleItem::query()
             ->join('sales', 'sales.id', '=', 'sale_items.sale_id')
             ->where('sale_items.company_id', $companyId)
             ->when($warehouseId, fn ($query) => $query->where('sales.warehouse_id', $warehouseId))
-            ->whereDate('sales.sale_date', today())
+            ->whereDate('sales.sale_date', today());
+        $grossProfit = (float) Sale::constrainToReportable($grossProfitQuery)
             ->selectRaw('COALESCE(SUM((sale_items.unit_price - sale_items.unit_cost) * sale_items.quantity), 0) as gross_profit')
             ->value('gross_profit');
 

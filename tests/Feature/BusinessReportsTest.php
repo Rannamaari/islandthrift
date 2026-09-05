@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Enums\SaleStatus;
 use App\Filament\Pages\BusinessReports;
+use App\Filament\Widgets\BestSellersTable;
 use App\Models\Product;
 use App\Models\Sale;
 use App\Models\SaleItem;
@@ -106,5 +107,62 @@ class BusinessReportsTest extends TestCase
         $manager->assignRole(Role::findByName('manager'));
 
         $this->actingAs($manager)->get('/admin/business-reports')->assertForbidden();
+    }
+
+    #[Test]
+    public function website_orders_only_count_in_best_sellers_when_completed_and_paid(): void
+    {
+        $warehouse = Warehouse::factory()->create();
+        $admin = User::factory()->forWarehouse($warehouse)->create();
+        $admin->assignRole(Role::findByName('admin'));
+        $unit = Unit::factory()->create();
+
+        $createSaleItem = function (string $productName, string $channel, ?string $orderStatus, ?string $paymentStatus) use ($warehouse, $unit): Sale {
+            $product = Product::factory()->create([
+                'company_id' => $warehouse->company_id,
+                'unit_id' => $unit->id,
+                'name' => $productName,
+                'sku' => str($productName)->slug()->upper()->toString(),
+            ]);
+            $sale = Sale::factory()->create([
+                'company_id' => $warehouse->company_id,
+                'branch_id' => $warehouse->branch_id,
+                'warehouse_id' => $warehouse->id,
+                'status' => SaleStatus::Completed,
+                'sale_date' => today(),
+                'sales_channel' => $channel,
+                'order_status' => $orderStatus,
+                'payment_status' => $paymentStatus,
+            ]);
+            SaleItem::factory()->create([
+                'sale_id' => $sale->id,
+                'company_id' => $warehouse->company_id,
+                'product_id' => $product->id,
+                'description' => $product->name,
+                'quantity' => 1,
+                'line_total' => 100,
+            ]);
+
+            return $sale;
+        };
+
+        $posSale = $createSaleItem('Completed POS Item', 'pos', null, null);
+        $paidWebsiteSale = $createSaleItem('Completed Paid Web Item', 'website', 'completed', 'paid');
+        $createSaleItem('Pending Unpaid Web Item', 'website', 'pending', 'unpaid');
+        $createSaleItem('Completed Unpaid Web Item', 'website', 'completed', 'unpaid');
+        $createSaleItem('Pending Paid Web Item', 'website', 'pending', 'paid');
+
+        $this->assertEqualsCanonicalizing(
+            [$posSale->id, $paidWebsiteSale->id],
+            Sale::query()->reportable()->pluck('id')->all(),
+        );
+
+        Livewire::actingAs($admin)
+            ->test(BestSellersTable::class)
+            ->assertSee('Completed POS Item')
+            ->assertSee('Completed Paid Web Item')
+            ->assertDontSee('Pending Unpaid Web Item')
+            ->assertDontSee('Completed Unpaid Web Item')
+            ->assertDontSee('Pending Paid Web Item');
     }
 }

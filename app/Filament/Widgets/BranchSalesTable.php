@@ -37,18 +37,17 @@ class BranchSalesTable extends TableWidget
     {
         $companyId = AdminSupport::companyId();
         $today = today()->toDateString();
-        $completedStatuses = ['completed', 'refunded', 'partially_refunded'];
 
         return Branch::query()
             ->where('branches.company_id', $companyId)
             ->where('branches.is_active', true)
             ->select('branches.*')
             ->selectSub(
-                Sale::query()->selectRaw('COALESCE(SUM(grand_total), 0)')->whereColumn('sales.branch_id', 'branches.id')->whereDate('sale_date', $today)->whereIn('status', $completedStatuses),
+                Sale::query()->reportable()->selectRaw('COALESCE(SUM(grand_total), 0)')->whereColumn('sales.branch_id', 'branches.id')->whereDate('sale_date', $today),
                 'today_sales',
             )
             ->selectSub(
-                Sale::query()->selectRaw('COUNT(*)')->whereColumn('sales.branch_id', 'branches.id')->whereDate('sale_date', $today)->whereIn('status', $completedStatuses),
+                Sale::query()->reportable()->selectRaw('COUNT(*)')->whereColumn('sales.branch_id', 'branches.id')->whereDate('sale_date', $today),
                 'today_transactions',
             )
             ->selectSub(
