@@ -63,6 +63,15 @@ class StorefrontTest extends TestCase
             ->assertSee('Prices include GST.');
         $this->get(route('store.checkout'))
             ->assertOk()
+            ->assertSee('Log in / Register')
+            ->assertSee('Continue as guest')
+            ->assertDontSee('name="delivery_method"', false)
+            ->assertSee('MVR 216.00')
+            ->assertSee('Prices include GST.');
+        $this->get(route('store.checkout', ['guest' => 1]))
+            ->assertOk()
+            ->assertSee('Checking out as a guest')
+            ->assertSee('name="delivery_method"', false)
             ->assertSee('MVR 216.00')
             ->assertSee('Prices include GST.');
         $response = $this->post(route('store.checkout.place'), [

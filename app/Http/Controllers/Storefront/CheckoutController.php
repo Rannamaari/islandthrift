@@ -29,12 +29,15 @@ class CheckoutController extends Controller
             return redirect()->route('store.cart')->withErrors(['cart' => 'Your cart is empty.']);
         }
 
+        $registeredCustomer = $customerSession->customer($request, $context->company());
+
         return view('storefront.checkout', [
             ...$summary,
             'company' => $context->company(),
             'deliveryMethods' => $context->deliveryMethods(),
             'paymentMethods' => $context->paymentMethods(),
-            'registeredCustomer' => $customerSession->customer($request, $context->company()),
+            'registeredCustomer' => $registeredCustomer,
+            'showCheckoutForm' => $registeredCustomer !== null || $request->boolean('guest'),
         ]);
     }
 

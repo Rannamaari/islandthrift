@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\Customer;
+use App\Models\Product;
 use App\Models\SmsDeliveryLog;
 use Database\Seeders\DatabaseSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -28,6 +29,13 @@ class CustomerOtpRegistrationTest extends TestCase
             ->assertSee('>Register</a>', false)
             ->assertDontSee('>Account</a>', false);
 
+        $product = Product::query()->where('sku', 'GALAXY-A16')->firstOrFail();
+        $this->post(route('store.cart.add'), ['product_id' => $product->id, 'quantity' => 1]);
+        $this->get(route('store.checkout'))
+            ->assertOk()
+            ->assertSee('Log in / Register');
+        $this->get(route('store.register', ['redirect' => 'checkout']))->assertOk();
+
         $response = $this->post(route('store.register.otp'), [
             'name' => 'Test Customer',
             'phone' => '7779493',
@@ -38,7 +46,7 @@ class CustomerOtpRegistrationTest extends TestCase
         $this->assertMatchesRegularExpression('/^\d{6}$/', $code);
 
         $verified = $this->post(route('store.register.verify'), ['otp' => $code]);
-        $verified->assertRedirect(route('store.register'))->assertSessionHasNoErrors();
+        $verified->assertRedirect(route('store.checkout'))->assertSessionHasNoErrors();
 
         $customer = Customer::query()->where('phone', '9607779493')->firstOrFail();
         $this->assertNotNull($customer->phone_verified_at);

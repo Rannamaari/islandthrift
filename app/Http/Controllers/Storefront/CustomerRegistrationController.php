@@ -20,6 +20,12 @@ class CustomerRegistrationController extends Controller
 {
     public function show(Request $request, StorefrontContext $context, StorefrontCustomerSession $customerSession): View
     {
+        if ($request->query('redirect') === 'checkout') {
+            $request->session()->put('store_customer_intended', 'checkout');
+        } elseif (! $request->session()->has('store_customer_otp_challenge')) {
+            $request->session()->forget('store_customer_intended');
+        }
+
         if ($request->boolean('restart')) {
             $request->session()->forget(['store_customer_otp_challenge', 'store_customer_pending', 'store_customer_otp_debug']);
         }
@@ -130,7 +136,9 @@ class CustomerRegistrationController extends Controller
         $request->session()->put('store_customer_id', $customer->id);
         $request->session()->forget(['store_customer_otp_challenge', 'store_customer_pending', 'store_customer_otp_debug']);
 
-        return redirect()->route('store.register')->with('success', 'Your phone number is verified.');
+        $destination = $request->session()->pull('store_customer_intended');
+
+        return redirect()->route($destination === 'checkout' ? 'store.checkout' : 'store.register')->with('success', 'Your phone number is verified.');
     }
 
     public function logout(Request $request): RedirectResponse
