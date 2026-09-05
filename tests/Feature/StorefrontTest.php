@@ -46,10 +46,25 @@ class StorefrontTest extends TestCase
     {
         $this->seed(DatabaseSeeder::class);
         $product = Product::query()->where('sku', 'GALAXY-A16')->firstOrFail();
+        $product->update([
+            'selling_price' => 100,
+            'sale_price' => null,
+            'tax_rate' => 8,
+        ]);
+        $product->branchPrices()->update(['selling_price' => 100]);
         $balance = InventoryBalance::query()->where('product_id', $product->id)->firstOrFail();
         $before = (float) $balance->quantity;
 
         $this->post(route('store.cart.add'), ['product_id' => $product->id, 'quantity' => 2])->assertSessionHasNoErrors();
+        $this->get(route('store.cart'))
+            ->assertOk()
+            ->assertSee('MVR 108.00')
+            ->assertSee('MVR 216.00')
+            ->assertSee('Prices include GST.');
+        $this->get(route('store.checkout'))
+            ->assertOk()
+            ->assertSee('MVR 216.00')
+            ->assertSee('Prices include GST.');
         $response = $this->post(route('store.checkout.place'), [
             'name' => 'Web Customer',
             'phone' => '7771234',
@@ -67,6 +82,10 @@ class StorefrontTest extends TestCase
         $this->assertSame('unpaid', $order->payment_status);
         $this->assertSame('Web Customer', $order->customer->name);
         $this->assertCount(1, $order->items);
+        $this->assertSame('200.0000', $order->subtotal);
+        $this->assertSame('16.0000', $order->tax_total);
+        $this->assertSame('216.0000', $order->grand_total);
+        $this->assertSame('100.0000', $order->items->first()->unit_price);
         $this->assertSame($before - 2, (float) $balance->fresh()->quantity);
         $this->get(route('store.order', $order->tracking_token))->assertOk()->assertSee($order->sale_number);
     }

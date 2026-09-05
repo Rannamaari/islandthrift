@@ -25,7 +25,12 @@ class StorefrontCatalog
 
     public function price(Product $product): float
     {
-        $regular = (float) ($product->branchPrices->first()?->selling_price ?? $product->selling_price);
+        return $this->includingTax($this->priceBeforeTax($product), $product);
+    }
+
+    public function priceBeforeTax(Product $product): float
+    {
+        $regular = $this->regularPriceBeforeTax($product);
 
         return $product->sale_price !== null && (float) $product->sale_price < $regular
             ? (float) $product->sale_price
@@ -34,7 +39,17 @@ class StorefrontCatalog
 
     public function regularPrice(Product $product): float
     {
+        return $this->includingTax($this->regularPriceBeforeTax($product), $product);
+    }
+
+    private function regularPriceBeforeTax(Product $product): float
+    {
         return (float) ($product->branchPrices->first()?->selling_price ?? $product->selling_price);
+    }
+
+    private function includingTax(float $price, Product $product): float
+    {
+        return round($price * (1 + ((float) $product->tax_rate / 100)), 4);
     }
 
     public function available(Product $product): float

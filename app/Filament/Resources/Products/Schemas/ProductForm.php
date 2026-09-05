@@ -90,7 +90,11 @@ class ProductForm
                         Grid::make(3)->schema([
                             Toggle::make('show_online')->label('Show Online')->default(false)->inline(false),
                             Toggle::make('is_featured')->label('Featured Product')->default(false)->inline(false),
-                            TextInput::make('sale_price')->label('Online Sale Price')->numeric()->minValue(0),
+                            TextInput::make('sale_price')
+                                ->label('Online Sale Price')
+                                ->numeric()
+                                ->minValue(0)
+                                ->helperText('Enter the price before GST. The website displays the GST-inclusive total.'),
                         ]),
                         Textarea::make('short_description')->rows(2)->maxLength(500)->columnSpanFull(),
                         RichEditor::make('description')

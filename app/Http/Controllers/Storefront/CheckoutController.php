@@ -102,7 +102,7 @@ class CheckoutController extends Controller
                 $summary['items']->map(fn ($item): array => [
                     'product_id' => $item['product']->id,
                     'quantity' => $item['quantity'],
-                    'unit_price' => $item['price'],
+                    'unit_price' => $item['price_before_tax'],
                 ])->all(),
                 [],
                 [
@@ -142,7 +142,12 @@ class CheckoutController extends Controller
         $items = collect($cart)->map(function ($quantity, $productId) use ($products, $catalog) {
             $product = $products->get($productId);
 
-            return $product ? ['product' => $product, 'quantity' => (int) $quantity, 'price' => $catalog->price($product)] : null;
+            return $product ? [
+                'product' => $product,
+                'quantity' => (int) $quantity,
+                'price' => $catalog->price($product),
+                'price_before_tax' => $catalog->priceBeforeTax($product),
+            ] : null;
         })->filter()->values();
 
         return ['items' => $items, 'subtotal' => $items->sum(fn ($item): float => $item['price'] * $item['quantity'])];
