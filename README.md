@@ -68,7 +68,7 @@ php artisan island-thrift:import-products COMPANY_UUID products.csv
 
 ## DigitalOcean production deployment
 
-Production templates are available in [`deploy/`](deploy/) and [`.env.production.example`](.env.production.example). The environment template is configured for the DigitalOcean PostgreSQL database `islandthrift`, the managed database host, port `25060`, user `doadmin`, and required SSL. Replace `YOUR_DOMAIN`, `password`, and the generated application key on the droplet. Never commit the real `.env` file.
+Production templates are available in [`deploy/`](deploy/) and [`.env.production.example`](.env.production.example). The environment template is configured for `https://islandthrift.micronet.mv`, the DigitalOcean PostgreSQL database `islandthrift`, the managed database host, port `25060`, user `doadmin`, and required SSL. Replace the database password placeholder and generate the application key on the droplet. Never commit the real `.env` file.
 
 For a first deployment on an Ubuntu droplet with Nginx and PHP-FPM already installed:
 
@@ -107,8 +107,8 @@ sudo systemctl enable --now islandthrift-worker
 After DNS points to the droplet, issue the HTTPS certificate and confirm Laravel's health endpoint:
 
 ```bash
-sudo certbot --nginx -d YOUR_DOMAIN -d www.YOUR_DOMAIN
-curl --fail https://YOUR_DOMAIN/up
+sudo certbot --nginx -d islandthrift.micronet.mv
+curl --fail https://islandthrift.micronet.mv/up
 ```
 
 Do not run `php artisan migrate --seed` in production because the demo seeder creates sample products and known development passwords.
