@@ -1,13 +1,12 @@
 <?php
 
-namespace App\Filament\Resources\Sales;
+namespace App\Filament\Resources\WebsiteOrders;
 
 use App\Filament\Resources\BaseResource;
-use App\Filament\Resources\Sales\Pages\ListSales;
-use App\Filament\Resources\Sales\Pages\ViewSale;
-use App\Filament\Resources\Sales\Schemas\SaleForm;
 use App\Filament\Resources\Sales\Schemas\SaleInfolist;
-use App\Filament\Resources\Sales\Tables\SalesTable;
+use App\Filament\Resources\WebsiteOrders\Pages\ListWebsiteOrders;
+use App\Filament\Resources\WebsiteOrders\Pages\ViewWebsiteOrder;
+use App\Filament\Resources\WebsiteOrders\Tables\WebsiteOrdersTable;
 use App\Models\Sale;
 use BackedEnum;
 use Filament\Schemas\Schema;
@@ -17,20 +16,19 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use UnitEnum;
 
-class SaleResource extends BaseResource
+class WebsiteOrderResource extends BaseResource
 {
     protected static ?string $model = Sale::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedReceiptPercent;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedShoppingBag;
 
     protected static ?string $recordTitleAttribute = 'sale_number';
 
-    protected static ?string $viewPermission = 'sales.view';
+    protected static ?string $modelLabel = 'website order';
 
-    public static function form(Schema $schema): Schema
-    {
-        return SaleForm::configure($schema);
-    }
+    protected static ?string $pluralModelLabel = 'website orders';
+
+    protected static ?string $viewPermission = 'sales.view';
 
     public static function infolist(Schema $schema): Schema
     {
@@ -39,20 +37,13 @@ class SaleResource extends BaseResource
 
     public static function table(Table $table): Table
     {
-        return SalesTable::configure($table);
-    }
-
-    public static function getRelations(): array
-    {
-        return [
-            //
-        ];
+        return WebsiteOrdersTable::configure($table);
     }
 
     public static function getEloquentQuery(): Builder
     {
         return parent::getEloquentQuery()
-            ->where(fn (Builder $query): Builder => $query->whereNull('sales_channel')->orWhere('sales_channel', '!=', 'website'))
+            ->where('sales_channel', 'website')
             ->with(['customer', 'branch', 'warehouse', 'creator', 'items.product', 'payments'])
             ->withCount('receiptPrintEvents');
     }
@@ -67,14 +58,6 @@ class SaleResource extends BaseResource
         return false;
     }
 
-    public static function getPages(): array
-    {
-        return [
-            'index' => ListSales::route('/'),
-            'view' => ViewSale::route('/{record}'),
-        ];
-    }
-
     public static function getNavigationGroup(): string|UnitEnum|null
     {
         return __('nav.sales');
@@ -82,6 +65,23 @@ class SaleResource extends BaseResource
 
     public static function getNavigationLabel(): string
     {
-        return 'POS Sales';
+        return 'Website Orders';
+    }
+
+    public static function getNavigationBadge(): ?string
+    {
+        $count = static::getEloquentQuery()
+            ->whereIn('order_status', ['pending', 'confirmed', 'preparing', 'ready'])
+            ->count();
+
+        return $count > 0 ? (string) $count : null;
+    }
+
+    public static function getPages(): array
+    {
+        return [
+            'index' => ListWebsiteOrders::route('/'),
+            'view' => ViewWebsiteOrder::route('/{record}'),
+        ];
     }
 }

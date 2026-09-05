@@ -23,20 +23,36 @@ class SaleInfolist
                                 TextEntry::make('order_status')->label('Order Status')->badge()->placeholder('—'),
                                 TextEntry::make('payment_status')->label('Payment Status')->badge()->placeholder('—'),
                                 TextEntry::make('sale_date')->date(),
-                                TextEntry::make('customer.name'),
-                                TextEntry::make('branch.name'),
-                                TextEntry::make('warehouse.name'),
+                                TextEntry::make('customer.name')->label('Customer'),
+                                TextEntry::make('customer.phone')->label('Customer Phone')->placeholder('—'),
+                                TextEntry::make('customer.email')->label('Customer Email')->placeholder('—'),
+                                TextEntry::make('branch.name')->label('Branch'),
+                                TextEntry::make('warehouse.name')->label('Warehouse'),
                                 TextEntry::make('grand_total')->money('MVR'),
                                 TextEntry::make('paid_total')->money('MVR'),
                                 TextEntry::make('balance_due')->money('MVR'),
-                                TextEntry::make('creator.name'),
+                                TextEntry::make('creator.name')->label('Created By')->placeholder('Website'),
                                 TextEntry::make('receipt_print_events_count')->label('Admin Reprints'),
                                 TextEntry::make('completed_at')->dateTime(),
-                                TextEntry::make('website_payment_method')->label('Website Payment')->placeholder('—'),
-                                TextEntry::make('delivery_method')->placeholder('—'),
+                                TextEntry::make('website_payment_method')
+                                    ->label('Payment Method')
+                                    ->formatStateUsing(fn (?string $state): string => match ($state) {
+                                        'cash' => 'Cash / Pay on Collection',
+                                        'bank_transfer' => 'Bank Transfer',
+                                        default => $state ?: '—',
+                                    })
+                                    ->placeholder('—'),
+                                TextEntry::make('delivery_method')
+                                    ->label('Fulfilment')
+                                    ->formatStateUsing(fn (?string $state): string => match ($state) {
+                                        'pickup' => 'Store Pickup',
+                                        'local_delivery' => 'Delivery',
+                                        default => $state ?: '—',
+                                    })
+                                    ->badge(),
                                 TextEntry::make('delivery_charge')->money('MVR'),
                                 TextEntry::make('delivery_address')->columnSpanFull()->placeholder('—'),
-                                TextEntry::make('notes')->columnSpanFull(),
+                                TextEntry::make('notes')->label('Order Notes')->columnSpanFull(),
                             ]),
                     ]),
                 Section::make('Items')
