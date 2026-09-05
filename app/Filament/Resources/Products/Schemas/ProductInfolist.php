@@ -41,7 +41,7 @@ class ProductInfolist
                                 IconEntry::make('is_featured')->label('Featured')->boolean(),
                                 TextEntry::make('sale_price')->money('MVR'),
                                 TextEntry::make('short_description')->columnSpanFull(),
-                                TextEntry::make('description')->columnSpanFull(),
+                                TextEntry::make('description')->html()->columnSpanFull(),
                             ]),
                     ]),
                 Section::make('Barcodes')

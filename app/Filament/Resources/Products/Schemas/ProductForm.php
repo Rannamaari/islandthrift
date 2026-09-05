@@ -13,6 +13,7 @@ use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Repeater;
+use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -92,6 +93,15 @@ class ProductForm
                             TextInput::make('sale_price')->label('Online Sale Price')->numeric()->minValue(0),
                         ]),
                         Textarea::make('short_description')->rows(2)->maxLength(500)->columnSpanFull(),
+                        RichEditor::make('description')
+                            ->label('Product Description')
+                            ->toolbarButtons([
+                                ['bold', 'italic', 'underline', 'strike', 'link'],
+                                ['h2', 'h3'],
+                                ['blockquote', 'bulletList', 'orderedList'],
+                                ['horizontalRule', 'undo', 'redo'],
+                            ])
+                            ->columnSpanFull(),
                         FileUpload::make('images')
                             ->label('Product Images')
                             ->image()
@@ -143,9 +153,6 @@ class ProductForm
                                 Toggle::make('allow_negative_stock')
                                     ->default(false)
                                     ->inline(false),
-                                Textarea::make('description')
-                                    ->rows(4)
-                                    ->columnSpanFull(),
                             ]),
                     ]),
                 Section::make('Opening Stock')

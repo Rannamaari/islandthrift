@@ -25,6 +25,23 @@ class StorefrontTest extends TestCase
         $this->get('/products/'.$offline->slug)->assertNotFound();
     }
 
+    public function test_product_page_renders_a_formatted_and_sanitized_description(): void
+    {
+        $this->seed(DatabaseSeeder::class);
+        $product = Product::query()->where('sku', 'GALAXY-A16')->firstOrFail();
+        $product->update([
+            'description' => '<h2>Built for island life</h2><ul><li><strong>Fast</strong> and dependable</li></ul><script>alert("unsafe")</script>',
+        ]);
+
+        $this->get(route('store.product', $product->slug))
+            ->assertOk()
+            ->assertSee('class="store-rich-text mt-4"', false)
+            ->assertSee('<h2>Built for island life</h2>', false)
+            ->assertSee('<ul><li><strong>Fast</strong> and dependable</li></ul>', false)
+            ->assertDontSee('<script>', false)
+            ->assertDontSee('alert("unsafe")', false);
+    }
+
     public function test_guest_checkout_creates_a_website_sale_and_uses_shared_inventory(): void
     {
         $this->seed(DatabaseSeeder::class);
