@@ -20,6 +20,8 @@ use App\Services\PurchaseService;
 use Database\Seeders\DatabaseSeeder;
 use Database\Seeders\RolesAndPermissionsSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Livewire\Livewire;
 use PHPUnit\Framework\Attributes\Test;
 use Spatie\Permission\Models\Role;
@@ -300,6 +302,34 @@ class BackOfficeManagementUiTest extends TestCase
             ->assertHasFormErrors(['sku' => 'unique']);
 
         $this->assertSame('EDITABLE-001', $product->fresh()->sku);
+    }
+
+    #[Test]
+    public function product_image_uploads_are_optimized_before_storage(): void
+    {
+        Storage::fake('public');
+        $warehouse = Warehouse::factory()->create();
+        $user = $this->userWithRole('admin', $warehouse);
+        $product = Product::factory()->create([
+            'company_id' => $warehouse->company_id,
+            'unit_id' => Unit::factory()->create()->id,
+            'sku' => 'IMAGE-001',
+        ]);
+
+        Livewire::actingAs($user)
+            ->test(EditProduct::class, ['record' => $product->id])
+            ->fillForm(['images' => [UploadedFile::fake()->image('product.jpg', 1800, 900)]])
+            ->call('save')
+            ->assertHasNoFormErrors();
+
+        $path = $product->fresh()->images[0];
+        Storage::disk('public')->assertExists($path);
+        $this->assertStringEndsWith('.webp', $path);
+
+        $dimensions = getimagesizefromstring(Storage::disk('public')->get($path));
+        $this->assertIsArray($dimensions);
+        $this->assertSame(1200, $dimensions[0]);
+        $this->assertSame(1200, $dimensions[1]);
     }
 
     #[Test]

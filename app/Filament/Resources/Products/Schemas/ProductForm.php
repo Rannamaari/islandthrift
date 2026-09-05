@@ -8,6 +8,7 @@ use App\Models\Branch;
 use App\Models\Product;
 use App\Models\Warehouse;
 use App\Services\InventoryQueryService;
+use App\Services\ProductImageOptimizer;
 use App\Support\InventoryStatus;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Hidden;
@@ -23,7 +24,9 @@ use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Unique;
+use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 
 class ProductForm
 {
@@ -109,14 +112,19 @@ class ProductForm
                         FileUpload::make('images')
                             ->label('Product Images')
                             ->image()
+                            ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp'])
                             ->multiple()
                             ->reorderable()
                             ->imageEditor()
+                            ->imageEditorAspectRatioOptions(['1:1'])
                             ->disk('public')
                             ->directory('products')
                             ->visibility('public')
-                            ->maxSize(4096)
+                            ->saveUploadedFileUsing(fn (TemporaryUploadedFile $file): string => app(ProductImageOptimizer::class)->store($file))
+                            ->maxSize(8192)
+                            ->rule(Rule::dimensions()->maxWidth(6000)->maxHeight(6000))
                             ->maxFiles(8)
+                            ->helperText('JPG, PNG or WebP. Images are automatically fitted onto a square up to 1200 × 1200 and compressed as WebP. Maximum upload: 8 MB each.')
                             ->columnSpanFull(),
                     ]),
                 Section::make('Pricing')
