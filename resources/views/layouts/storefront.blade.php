@@ -84,7 +84,10 @@
             <div><h2 class="store-footer-title">Help</h2><div class="grid gap-2.5 text-sm"><a href="{{ route('store.contact') }}">Contact Us</a><a href="{{ route('store.contact') }}#location">Himmafushi, Maldives</a><a href="{{ route('store.shop') }}">Browse Categories</a></div></div>
             <div><h2 class="store-footer-title">Contact</h2><div class="grid gap-2.5 text-sm text-slate-400">@if($storeCompany->phone)<a href="tel:{{ $storeCompany->phone }}">{{ $storeCompany->phone }}</a>@endif @if($storeCompany->email)<a href="mailto:{{ $storeCompany->email }}">{{ $storeCompany->email }}</a>@endif <span>Himmafushi, Maldives</span></div></div>
         </div>
-        <div class="store-container border-t border-white/10 py-6 text-xs text-slate-500">© {{ now()->year }} Island Thrift. All rights reserved.</div>
+        <div class="store-container flex flex-col gap-2 border-t border-white/10 py-6 text-xs text-slate-500 sm:flex-row sm:items-center sm:justify-between">
+            <span>© {{ now()->year }} Island Thrift. All rights reserved.</span>
+            <span>Website created by <a href="https://micronet.mv" target="_blank" rel="noopener noreferrer" class="font-semibold text-slate-300 transition hover:text-white">micronet.mv</a></span>
+        </div>
     </footer>
 
     @if($storeCompany->website_whatsapp)
