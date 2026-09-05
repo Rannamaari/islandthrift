@@ -99,13 +99,15 @@ class BusinessReports extends Page
             ->join('sales', 'sales.id', '=', 'sale_items.sale_id')
             ->where('sales.company_id', $branch->company_id)
             ->where('sales.branch_id', $branch->id)
-            ->whereBetween('sales.sale_date', [$this->dateFrom, $this->dateTo]);
+            ->whereDate('sales.sale_date', '>=', $this->dateFrom)
+            ->whereDate('sales.sale_date', '<=', $this->dateTo);
         $grossProfit = (float) Sale::constrainToReportable($grossProfitQuery)
             ->selectRaw('COALESCE(SUM((sale_items.unit_price - sale_items.unit_cost) * sale_items.quantity), 0) as gross_profit')
             ->value('gross_profit');
         $returns = SaleReturn::query()
             ->where('company_id', $branch->company_id)
-            ->whereBetween('return_date', [$this->dateFrom, $this->dateTo])
+            ->whereDate('return_date', '>=', $this->dateFrom)
+            ->whereDate('return_date', '<=', $this->dateTo)
             ->whereHas('sale', fn (Builder $query) => $query->where('branch_id', $branch->id))
             ->selectRaw('COUNT(*) as returns_count, COALESCE(SUM(grand_total), 0) as returns_total')
             ->first();
@@ -115,7 +117,8 @@ class BusinessReports extends Page
             ->join('sales', 'sales.id', '=', 'sale_payments.sale_id')
             ->where('sales.company_id', $branch->company_id)
             ->where('sales.branch_id', $branch->id)
-            ->whereBetween('sales.sale_date', [$this->dateFrom, $this->dateTo]);
+            ->whereDate('sales.sale_date', '>=', $this->dateFrom)
+            ->whereDate('sales.sale_date', '<=', $this->dateTo);
         $payments = Sale::constrainToReportable($paymentsQuery)
             ->selectRaw('sale_payments.payment_method, COALESCE(SUM(sale_payments.amount), 0) as total')
             ->groupBy('sale_payments.payment_method')
@@ -127,7 +130,8 @@ class BusinessReports extends Page
             ->join('sales', 'sales.id', '=', 'sale_items.sale_id')
             ->where('sales.company_id', $branch->company_id)
             ->where('sales.branch_id', $branch->id)
-            ->whereBetween('sales.sale_date', [$this->dateFrom, $this->dateTo]);
+            ->whereDate('sales.sale_date', '>=', $this->dateFrom)
+            ->whereDate('sales.sale_date', '<=', $this->dateTo);
         $bestSellers = Sale::constrainToReportable($bestSellersQuery)
             ->select('products.id', 'products.name', 'products.sku')
             ->selectRaw('COALESCE(SUM(sale_items.quantity), 0) as quantity_sold, COALESCE(SUM(sale_items.line_total), 0) as sales_total')
@@ -181,7 +185,8 @@ class BusinessReports extends Page
             ->reportable()
             ->where('company_id', $branch->company_id)
             ->where('branch_id', $branch->id)
-            ->whereBetween('sale_date', [$this->dateFrom, $this->dateTo]);
+            ->whereDate('sale_date', '>=', $this->dateFrom)
+            ->whereDate('sale_date', '<=', $this->dateTo);
     }
 
     private function inventoryValue(Branch $branch): float
@@ -207,7 +212,8 @@ class BusinessReports extends Page
     {
         $returnsByDate = SaleReturn::query()
             ->where('company_id', $branch->company_id)
-            ->whereBetween('return_date', [$this->dateFrom, $this->dateTo])
+            ->whereDate('return_date', '>=', $this->dateFrom)
+            ->whereDate('return_date', '<=', $this->dateTo)
             ->whereHas('sale', fn (Builder $query) => $query->where('branch_id', $branch->id))
             ->selectRaw('return_date, COALESCE(SUM(grand_total), 0) as returns_total')
             ->groupBy('return_date')

@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Enums\SaleStatus;
 use App\Filament\Pages\BusinessReports;
 use App\Filament\Widgets\BestSellersTable;
+use App\Filament\Widgets\DailyBranchSalesChart;
 use App\Models\Product;
 use App\Models\Sale;
 use App\Models\SaleItem;
@@ -16,6 +17,7 @@ use Database\Seeders\RolesAndPermissionsSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
 use PHPUnit\Framework\Attributes\Test;
+use ReflectionMethod;
 use Spatie\Permission\Models\Role;
 use Tests\TestCase;
 
@@ -91,8 +93,13 @@ class BusinessReportsTest extends TestCase
             ->assertSee(today()->subDay()->format('M d, Y'))
             ->assertSee('13.00');
 
-        Livewire::actingAs($admin)
-            ->test(BusinessReports::class)
+        $reportComponent = Livewire::actingAs($admin)->test(BusinessReports::class);
+        $report = $reportComponent->instance()->getReportProperty();
+
+        $this->assertSame(2, $report['summary']['transactions']);
+        $this->assertSame(23.0, $report['summary']['sales_total']);
+
+        $reportComponent
             ->call('selectDailySalesDate', today()->toDateString())
             ->assertSee('Daily Item Sales Summary')
             ->assertSee('Report Cola')
@@ -164,5 +171,30 @@ class BusinessReportsTest extends TestCase
             ->assertDontSee('Pending Unpaid Web Item')
             ->assertDontSee('Completed Unpaid Web Item')
             ->assertDontSee('Pending Paid Web Item');
+    }
+
+    #[Test]
+    public function daily_sales_chart_maps_database_dates_to_the_correct_graph_point(): void
+    {
+        $warehouse = Warehouse::factory()->create();
+        $admin = User::factory()->forWarehouse($warehouse)->create();
+        $admin->assignRole(Role::findByName('admin'));
+        Sale::factory()->create([
+            'company_id' => $warehouse->company_id,
+            'branch_id' => $warehouse->branch_id,
+            'warehouse_id' => $warehouse->id,
+            'status' => SaleStatus::Completed,
+            'sales_channel' => 'pos',
+            'sale_date' => today(),
+            'grand_total' => 125.50,
+        ]);
+
+        $widget = Livewire::actingAs($admin)->test(DailyBranchSalesChart::class)->instance();
+        $method = new ReflectionMethod(DailyBranchSalesChart::class, 'getData');
+        $data = $method->invoke($widget);
+        $todayIndex = array_search(today()->format('M j'), $data['labels'], true);
+
+        $this->assertNotFalse($todayIndex);
+        $this->assertSame(125.50, $data['datasets'][0]['data'][$todayIndex]);
     }
 }

@@ -40,7 +40,10 @@ class DailyBranchSalesChart extends ChartWidget
                 ->whereDate('sale_date', '>=', $start)
                 ->selectRaw('sale_date, COALESCE(SUM(grand_total), 0) as total')
                 ->groupBy('sale_date')
-                ->pluck('total', 'sale_date')
+                ->get()
+                ->mapWithKeys(fn (Sale $sale): array => [
+                    $sale->sale_date->toDateString() => (float) $sale->total,
+                ])
             : collect();
 
         return [
