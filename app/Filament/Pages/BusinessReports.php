@@ -240,7 +240,7 @@ class BusinessReports extends Page
             });
     }
 
-    /** @return Collection<int, array{product_name: string, sku: string, quantity_sold: float, quantity_returned: float, net_quantity: float, sales_total: float, returns_total: float, net_sales: float}> */
+    /** @return Collection<int, array{product_name: string, sku: string, sales_channel: string, sold_through: string, quantity_sold: float, quantity_returned: float, net_quantity: float, sales_total: float, returns_total: float, net_sales: float}> */
     private function dailyItemSales(Branch $branch, string $date): Collection
     {
         $soldItemsQuery = SaleItem::query()
@@ -252,10 +252,11 @@ class BusinessReports extends Page
         $soldItems = Sale::constrainToReportable($soldItemsQuery)
             ->select('sale_items.product_id', 'sale_items.description')
             ->selectRaw("COALESCE(products.sku, '') as sku")
+            ->selectRaw("COALESCE(sales.sales_channel, 'pos') as sales_channel")
             ->selectRaw('COALESCE(SUM(sale_items.quantity), 0) as quantity_sold, COALESCE(SUM(sale_items.line_total), 0) as sales_total')
-            ->groupBy('sale_items.product_id', 'sale_items.description', 'products.sku')
+            ->groupBy('sale_items.product_id', 'sale_items.description', 'products.sku', 'sales.sales_channel')
             ->get()
-            ->keyBy('product_id');
+            ->keyBy(fn (object $item): string => $item->product_id.'|'.$item->sales_channel);
 
         $returnedItems = SaleReturnItem::query()
             ->join('sale_returns', 'sale_returns.id', '=', 'sale_return_items.sale_return_id')
@@ -268,24 +269,28 @@ class BusinessReports extends Page
             ->select('sale_return_items.product_id')
             ->selectRaw("COALESCE(sale_items.description, products.name, 'Deleted product') as product_name")
             ->selectRaw("COALESCE(products.sku, '') as sku")
+            ->selectRaw("COALESCE(sales.sales_channel, 'pos') as sales_channel")
             ->selectRaw('COALESCE(SUM(sale_return_items.quantity), 0) as quantity_returned, COALESCE(SUM(sale_return_items.line_total), 0) as returns_total')
-            ->groupBy('sale_return_items.product_id', 'sale_items.description', 'products.name', 'products.sku')
+            ->groupBy('sale_return_items.product_id', 'sale_items.description', 'products.name', 'products.sku', 'sales.sales_channel')
             ->get()
-            ->keyBy('product_id');
+            ->keyBy(fn (object $item): string => $item->product_id.'|'.$item->sales_channel);
 
         return $soldItems
             ->union($returnedItems)
-            ->map(function (object $item, string $productId) use ($soldItems, $returnedItems): array {
-                $sold = $soldItems->get($productId);
-                $returned = $returnedItems->get($productId);
+            ->map(function (object $item, string $productChannelKey) use ($soldItems, $returnedItems): array {
+                $sold = $soldItems->get($productChannelKey);
+                $returned = $returnedItems->get($productChannelKey);
                 $quantitySold = (float) ($sold?->quantity_sold ?? 0);
                 $quantityReturned = (float) ($returned?->quantity_returned ?? 0);
                 $salesTotal = (float) ($sold?->sales_total ?? 0);
                 $returnsTotal = (float) ($returned?->returns_total ?? 0);
+                $salesChannel = $sold?->sales_channel ?? $returned?->sales_channel ?? 'pos';
 
                 return [
                     'product_name' => $sold?->description ?? $returned?->product_name ?? 'Deleted product',
                     'sku' => $sold?->sku ?? $returned?->sku ?? '',
+                    'sales_channel' => $salesChannel,
+                    'sold_through' => $salesChannel === 'website' ? 'Website' : 'Shop / POS',
                     'quantity_sold' => $quantitySold,
                     'quantity_returned' => $quantityReturned,
                     'net_quantity' => $quantitySold - $quantityReturned,

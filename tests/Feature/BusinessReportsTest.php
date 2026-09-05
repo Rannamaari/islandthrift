@@ -71,6 +71,30 @@ class BusinessReportsTest extends TestCase
             'payment_method' => 'cash',
             'amount' => 10,
         ]);
+        $websiteSale = Sale::factory()->create([
+            'company_id' => $warehouse->company_id,
+            'branch_id' => $warehouse->branch_id,
+            'warehouse_id' => $warehouse->id,
+            'status' => SaleStatus::Completed,
+            'sales_channel' => 'website',
+            'order_status' => 'completed',
+            'payment_status' => 'paid',
+            'sale_date' => today(),
+            'subtotal' => 5,
+            'grand_total' => 5,
+            'paid_total' => 5,
+            'balance_due' => 0,
+        ]);
+        SaleItem::factory()->create([
+            'sale_id' => $websiteSale->id,
+            'company_id' => $warehouse->company_id,
+            'product_id' => $product->id,
+            'description' => $product->name,
+            'quantity' => 1,
+            'unit_price' => 5,
+            'unit_cost' => 4,
+            'line_total' => 5,
+        ]);
         Sale::factory()->create([
             'company_id' => $warehouse->company_id,
             'branch_id' => $warehouse->branch_id,
@@ -96,14 +120,16 @@ class BusinessReportsTest extends TestCase
         $reportComponent = Livewire::actingAs($admin)->test(BusinessReports::class);
         $report = $reportComponent->instance()->getReportProperty();
 
-        $this->assertSame(2, $report['summary']['transactions']);
-        $this->assertSame(23.0, $report['summary']['sales_total']);
+        $this->assertSame(3, $report['summary']['transactions']);
+        $this->assertSame(28.0, $report['summary']['sales_total']);
 
         $reportComponent
             ->call('selectDailySalesDate', today()->toDateString())
             ->assertSee('Daily Item Sales Summary')
             ->assertSee('Report Cola')
-            ->assertSee('REPORT-COLA');
+            ->assertSee('REPORT-COLA')
+            ->assertSee('Shop / POS')
+            ->assertSee('Website');
     }
 
     #[Test]
