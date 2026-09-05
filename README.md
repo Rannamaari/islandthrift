@@ -81,7 +81,8 @@ cp .env.production.example .env
 composer install --no-dev --prefer-dist --no-interaction --optimize-autoloader
 php artisan key:generate
 sudo chown -R "$USER":www-data storage bootstrap/cache
-sudo chmod -R ug+rwx storage bootstrap/cache
+sudo find storage bootstrap/cache -type d -exec chmod 2775 {} +
+sudo find storage bootstrap/cache -type f -exec chmod 0664 {} +
 ```
 
 Edit `.env`, enter the real domain, database name, and database password, then run:
