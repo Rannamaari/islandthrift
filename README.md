@@ -68,7 +68,7 @@ php artisan island-thrift:import-products COMPANY_UUID products.csv
 
 ## DigitalOcean production deployment
 
-Production templates are available in [`deploy/`](deploy/) and [`.env.production.example`](.env.production.example). The environment template is configured for the DigitalOcean PostgreSQL host, port `25060`, user `doadmin`, and required SSL. Replace `YOUR_DOMAIN`, `YOUR_DATABASE_NAME`, `password`, and the generated application key on the droplet. Never commit the real `.env` file.
+Production templates are available in [`deploy/`](deploy/) and [`.env.production.example`](.env.production.example). The environment template is configured for the DigitalOcean PostgreSQL database `islandthrift`, the managed database host, port `25060`, user `doadmin`, and required SSL. Replace `YOUR_DOMAIN`, `password`, and the generated application key on the droplet. Never commit the real `.env` file.
 
 For a first deployment on an Ubuntu droplet with Nginx and PHP-FPM already installed:
 

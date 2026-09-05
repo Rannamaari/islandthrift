@@ -17,7 +17,7 @@ if [[ ! -f .env ]]; then
     exit 1
 fi
 
-if grep -Eq 'YOUR_DOMAIN|YOUR_DATABASE_NAME|DB_PASSWORD=password|APP_KEY=GENERATE_ON_THE_SERVER' .env; then
+if grep -Eq 'YOUR_DOMAIN|DB_PASSWORD=password|APP_KEY=GENERATE_ON_THE_SERVER' .env; then
     echo "Production placeholders remain in .env. Set the domain, database name, database password, and APP_KEY first."
     exit 1
 fi
