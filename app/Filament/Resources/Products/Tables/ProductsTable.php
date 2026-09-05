@@ -2,7 +2,6 @@
 
 namespace App\Filament\Resources\Products\Tables;
 
-use App\Models\Product;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
@@ -52,6 +51,14 @@ class ProductsTable
                     ->boolean(),
                 IconColumn::make('is_active')
                     ->boolean(),
+                IconColumn::make('show_online')
+                    ->label('Online')
+                    ->boolean()
+                    ->sortable(),
+                IconColumn::make('is_featured')
+                    ->label('Featured')
+                    ->boolean()
+                    ->sortable(),
             ])
             ->filters([
                 SelectFilter::make('category_id')
@@ -68,6 +75,9 @@ class ProductsTable
                         1 => 'Active',
                         0 => 'Inactive',
                     ]),
+                SelectFilter::make('show_online')
+                    ->label('Online visibility')
+                    ->options([1 => 'Shown Online', 0 => 'Hidden Online']),
             ])
             ->recordActions([
                 ViewAction::make(),

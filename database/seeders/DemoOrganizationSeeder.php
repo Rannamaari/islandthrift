@@ -44,6 +44,16 @@ class DemoOrganizationSeeder extends Seeder
             ]
         );
 
+        $company->update([
+            'online_branch_id' => $branch->id,
+            'online_warehouse_id' => $warehouse->id,
+            'website_enabled' => true,
+            'city' => 'Himmafushi',
+            'country' => 'Maldives',
+            'website_delivery_methods' => ['pickup' => 'Store Pickup', 'local_delivery' => 'Local Delivery'],
+            'website_payment_methods' => ['cash' => 'Cash / Pay on Collection', 'bank_transfer' => 'Bank Transfer'],
+        ]);
+
         $user = User::query()->updateOrCreate(
             ['email' => 'admin@islandthrift.local'],
             [

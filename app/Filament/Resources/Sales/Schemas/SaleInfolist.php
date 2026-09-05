@@ -3,9 +3,9 @@
 namespace App\Filament\Resources\Sales\Schemas;
 
 use Filament\Infolists\Components\TextEntry;
-use Filament\Schemas\Schema;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
+use Filament\Schemas\Schema;
 
 class SaleInfolist
 {
@@ -19,6 +19,9 @@ class SaleInfolist
                             ->schema([
                                 TextEntry::make('sale_number'),
                                 TextEntry::make('status')->badge(),
+                                TextEntry::make('sales_channel')->label('Channel')->badge(),
+                                TextEntry::make('order_status')->label('Order Status')->badge()->placeholder('—'),
+                                TextEntry::make('payment_status')->label('Payment Status')->badge()->placeholder('—'),
                                 TextEntry::make('sale_date')->date(),
                                 TextEntry::make('customer.name'),
                                 TextEntry::make('branch.name'),
@@ -29,6 +32,10 @@ class SaleInfolist
                                 TextEntry::make('creator.name'),
                                 TextEntry::make('receipt_print_events_count')->label('Admin Reprints'),
                                 TextEntry::make('completed_at')->dateTime(),
+                                TextEntry::make('website_payment_method')->label('Website Payment')->placeholder('—'),
+                                TextEntry::make('delivery_method')->placeholder('—'),
+                                TextEntry::make('delivery_charge')->money('MVR'),
+                                TextEntry::make('delivery_address')->columnSpanFull()->placeholder('—'),
                                 TextEntry::make('notes')->columnSpanFull(),
                             ]),
                     ]),

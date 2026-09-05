@@ -28,6 +28,12 @@ class DemoInventorySeeder extends Seeder
             'PEPSI-500' => ['quantity' => 75, 'unit_cost' => 8.0000],
             'NOODLES-001' => ['quantity' => 60, 'unit_cost' => 5.2500],
             'DISH-500' => ['quantity' => 30, 'unit_cost' => 14.0000],
+            'GALAXY-A16' => ['quantity' => 8, 'unit_cost' => 2300],
+            'AIR-M2-13' => ['quantity' => 3, 'unit_cost' => 12800],
+            'JBL-GO4' => ['quantity' => 12, 'unit_cost' => 650],
+            'MI-PB-20K' => ['quantity' => 15, 'unit_cost' => 480],
+            'LOGI-G203' => ['quantity' => 10, 'unit_cost' => 390],
+            'GALAXY-FIT3' => ['quantity' => 7, 'unit_cost' => 750],
         ];
 
         foreach ($openingStock as $sku => $data) {

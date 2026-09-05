@@ -4,13 +4,34 @@ use App\Http\Controllers\AdminSaleReceiptController;
 use App\Http\Controllers\CashierShiftReportController;
 use App\Http\Controllers\PosApiController;
 use App\Http\Controllers\PosPageController;
+use App\Http\Controllers\Storefront\CartController;
+use App\Http\Controllers\Storefront\CheckoutController;
+use App\Http\Controllers\Storefront\HomeController;
+use App\Http\Controllers\Storefront\OrderController;
+use App\Http\Controllers\Storefront\ProductController;
+use App\Http\Controllers\Storefront\ShopController;
+use App\Services\StorefrontCatalog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return view('welcome');
-});
+Route::get('/', HomeController::class)->name('store.home');
+Route::get('/shop', [ShopController::class, 'index'])->name('store.shop');
+Route::get('/categories/{slug}', [ShopController::class, 'category'])->name('store.category');
+Route::get('/products/{slug}', ProductController::class)->name('store.product');
+Route::get('/cart', [CartController::class, 'index'])->name('store.cart');
+Route::post('/cart', [CartController::class, 'store'])->name('store.cart.add');
+Route::patch('/cart/{productId}', [CartController::class, 'update'])->name('store.cart.update');
+Route::delete('/cart/{productId}', [CartController::class, 'destroy'])->name('store.cart.remove');
+Route::get('/checkout', [CheckoutController::class, 'create'])->name('store.checkout');
+Route::post('/checkout', [CheckoutController::class, 'store'])->middleware('throttle:10,1')->name('store.checkout.place');
+Route::get('/order/{token}', OrderController::class)->name('store.order');
+Route::view('/contact', 'storefront.contact')->name('store.contact');
+Route::get('/sitemap.xml', function (StorefrontCatalog $catalog) {
+    $products = $catalog->query()->get(['products.id', 'products.slug', 'products.updated_at']);
+
+    return response()->view('storefront.sitemap', compact('products'))->header('Content-Type', 'application/xml');
+})->name('store.sitemap');
 
 Route::post('/locale/{locale}', function (Request $request, string $locale) {
     abort_unless(in_array($locale, ['en', 'dv'], true), 404);

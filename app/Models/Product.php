@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Support\Str;
 use InvalidArgumentException;
 
 class Product extends Model
@@ -29,6 +30,9 @@ class Product extends Model
         'sku',
         'name',
         'description',
+        'short_description',
+        'slug',
+        'images',
         'cost_price',
         'selling_price',
         'wholesale_price',
@@ -37,6 +41,9 @@ class Product extends Model
         'allow_negative_stock',
         'track_inventory',
         'is_active',
+        'sale_price',
+        'show_online',
+        'is_featured',
     ];
 
     /**
@@ -53,6 +60,10 @@ class Product extends Model
             'allow_negative_stock' => 'boolean',
             'track_inventory' => 'boolean',
             'is_active' => 'boolean',
+            'sale_price' => 'decimal:4',
+            'images' => 'array',
+            'show_online' => 'boolean',
+            'is_featured' => 'boolean',
         ];
     }
 
@@ -66,7 +77,20 @@ class Product extends Model
         });
 
         static::saving(function (Product $product): void {
-            foreach (['cost_price', 'selling_price', 'wholesale_price', 'tax_rate', 'minimum_stock'] as $field) {
+            if (blank($product->slug) || $product->isDirty(['name', 'sku'])) {
+                $base = Str::slug("{$product->name}-{$product->sku}") ?: Str::lower($product->sku);
+                $slug = $base;
+                $suffix = 2;
+
+                while (static::query()->where('company_id', $product->company_id)->where('slug', $slug)->whereKeyNot($product->id)->exists()) {
+                    $slug = "{$base}-{$suffix}";
+                    $suffix++;
+                }
+
+                $product->slug = $slug;
+            }
+
+            foreach (['cost_price', 'selling_price', 'wholesale_price', 'sale_price', 'tax_rate', 'minimum_stock'] as $field) {
                 $value = $product->{$field};
 
                 if ($value !== null && (float) $value < 0) {
@@ -155,6 +179,11 @@ class Product extends Model
     public function scopeActive(Builder $query): Builder
     {
         return $query->where('is_active', true);
+    }
+
+    public function scopeVisibleOnline(Builder $query): Builder
+    {
+        return $query->where('is_active', true)->where('show_online', true);
     }
 
     public static function searchForCompany(string $companyId, string $term, array $filters = []): Builder

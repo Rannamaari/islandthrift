@@ -8,10 +8,10 @@ use App\Services\InventoryQueryService;
 use App\Support\InventoryStatus;
 use Filament\Infolists\Components\IconEntry;
 use Filament\Infolists\Components\TextEntry;
-use Filament\Schemas\Schema;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\View;
+use Filament\Schemas\Schema;
 
 class ProductInfolist
 {
@@ -37,6 +37,10 @@ class ProductInfolist
                                 IconEntry::make('track_inventory')->boolean(),
                                 IconEntry::make('allow_negative_stock')->boolean(),
                                 IconEntry::make('is_active')->boolean(),
+                                IconEntry::make('show_online')->label('Shown Online')->boolean(),
+                                IconEntry::make('is_featured')->label('Featured')->boolean(),
+                                TextEntry::make('sale_price')->money('MVR'),
+                                TextEntry::make('short_description')->columnSpanFull(),
                                 TextEntry::make('description')->columnSpanFull(),
                             ]),
                     ]),

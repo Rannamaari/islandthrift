@@ -3,13 +3,15 @@
 namespace App\Filament\Resources\Categories\Schemas;
 
 use App\Filament\Support\AdminSupport;
+use App\Models\Category;
+use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
-use Filament\Schemas\Schema;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
+use Filament\Schemas\Schema;
 use Illuminate\Validation\Rule;
 
 class CategoryForm
@@ -34,7 +36,7 @@ class CategoryForm
                                     ->columnSpan(1),
                                 Select::make('parent_id')
                                     ->label('Parent Category')
-                                    ->options(fn (): array => AdminSupport::companyOptions(\App\Models\Category::class))
+                                    ->options(fn (): array => AdminSupport::companyOptions(Category::class))
                                     ->searchable()
                                     ->preload()
                                     ->columnSpan(1),
@@ -44,6 +46,13 @@ class CategoryForm
                                     ->columnSpan(1),
                                 Textarea::make('description')
                                     ->rows(4)
+                                    ->columnSpanFull(),
+                                FileUpload::make('image_path')
+                                    ->label('Storefront Image')
+                                    ->image()
+                                    ->disk('public')
+                                    ->directory('categories')
+                                    ->visibility('public')
                                     ->columnSpanFull(),
                             ]),
                     ]),

@@ -35,6 +35,13 @@ class Company extends Model
         'timezone',
         'currency',
         'is_active',
+        'website_enabled',
+        'online_branch_id',
+        'online_warehouse_id',
+        'website_whatsapp',
+        'website_social_links',
+        'website_delivery_methods',
+        'website_payment_methods',
     ];
 
     /**
@@ -46,6 +53,10 @@ class Company extends Model
             'is_active' => 'boolean',
             'receipt_show_address' => 'boolean',
             'receipt_show_phone' => 'boolean',
+            'website_enabled' => 'boolean',
+            'website_social_links' => 'array',
+            'website_delivery_methods' => 'array',
+            'website_payment_methods' => 'array',
         ];
     }
 

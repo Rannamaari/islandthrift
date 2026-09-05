@@ -9,6 +9,7 @@ use App\Exceptions\TransactionException;
 use App\Models\Branch;
 use App\Models\CashierShift;
 use App\Models\Customer;
+use App\Models\CustomerTransaction;
 use App\Models\Product;
 use App\Models\ProductBranchPrice;
 use App\Models\Sale;
@@ -83,6 +84,7 @@ class SalesService
                 $lineItems->sum('line_subtotal'),
                 $lineItems->sum('discount_amount'),
                 $lineItems->sum('tax_amount'),
+                $attributes['delivery_charge'] ?? 0,
             );
 
             $sale = Sale::query()->create([
@@ -105,6 +107,14 @@ class SalesService
                 'notes' => $attributes['notes'] ?? null,
                 'created_by' => $attributes['created_by'] ?? null,
                 'completed_at' => $status === SaleStatus::Completed ? ($attributes['completed_at'] ?? now()) : null,
+                'sales_channel' => $attributes['sales_channel'] ?? 'pos',
+                'order_status' => $attributes['order_status'] ?? null,
+                'payment_status' => $attributes['payment_status'] ?? null,
+                'website_payment_method' => $attributes['website_payment_method'] ?? null,
+                'delivery_method' => $attributes['delivery_method'] ?? null,
+                'delivery_charge' => $attributes['delivery_charge'] ?? 0,
+                'delivery_address' => $attributes['delivery_address'] ?? null,
+                'tracking_token' => $attributes['tracking_token'] ?? null,
             ]);
 
             foreach ($lineItems as $lineItem) {
@@ -568,7 +578,7 @@ class SalesService
 
     private function saleReceivableBalance(string $saleId): string
     {
-        $balance = \App\Models\CustomerTransaction::query()
+        $balance = CustomerTransaction::query()
             ->where('reference_type', Sale::class)
             ->where('reference_id', $saleId)
             ->sum('amount');
@@ -613,9 +623,9 @@ class SalesService
         });
     }
 
-    private function calculateTotals(float|int|string $subtotal, float|int|string $discount, float|int|string $tax): array
+    private function calculateTotals(float|int|string $subtotal, float|int|string $discount, float|int|string $tax, float|int|string $deliveryCharge = 0): array
     {
-        $grandTotal = round((float) $subtotal - (float) $discount + (float) $tax, 4);
+        $grandTotal = round((float) $subtotal - (float) $discount + (float) $tax + (float) $deliveryCharge, 4);
 
         return [
             'subtotal' => $this->formatDecimal($subtotal),

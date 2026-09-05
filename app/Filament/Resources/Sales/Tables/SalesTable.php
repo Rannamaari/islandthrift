@@ -16,6 +16,9 @@ class SalesTable
             ->columns([
                 TextColumn::make('sale_number')->searchable()->sortable(),
                 TextColumn::make('sale_date')->date()->sortable(),
+                TextColumn::make('sales_channel')->label('Channel')->badge()->sortable(),
+                TextColumn::make('order_status')->label('Order Status')->badge()->placeholder('—')->sortable(),
+                TextColumn::make('payment_status')->label('Payment')->badge()->placeholder('—')->toggleable(),
                 TextColumn::make('branch.name')->label('Branch')->badge()->sortable(),
                 TextColumn::make('warehouse.name')->label('Warehouse')->toggleable(),
                 TextColumn::make('customer.name')->toggleable(),
@@ -38,6 +41,14 @@ class SalesTable
                         'voided' => 'Voided',
                         'refunded' => 'Refunded',
                         'partially_refunded' => 'Partially Refunded',
+                    ]),
+                SelectFilter::make('sales_channel')
+                    ->label('Channel')
+                    ->options(['pos' => 'POS', 'website' => 'Website']),
+                SelectFilter::make('order_status')
+                    ->options([
+                        'pending' => 'Pending', 'confirmed' => 'Confirmed', 'preparing' => 'Preparing',
+                        'ready' => 'Ready', 'completed' => 'Completed', 'cancelled' => 'Cancelled',
                     ]),
             ])
             ->recordActions([

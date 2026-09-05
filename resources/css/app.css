@@ -121,3 +121,54 @@ html[dir="rtl"] .pos-shell .text-right {
     background: rgba(255, 255, 255, 0.06);
     color: var(--pos-muted);
 }
+
+@layer components {
+    .store-container { @apply mx-auto w-full max-w-[1320px] px-4 sm:px-6 lg:px-8; }
+    .store-section { @apply mt-16 sm:mt-20; }
+    .store-section-heading { @apply mb-7 flex items-end justify-between gap-5; }
+    .store-section-heading h2 { @apply mt-1 text-2xl font-black tracking-tight sm:text-4xl; }
+    .store-section-heading > a { @apply shrink-0 text-sm font-bold text-indigo-600 transition hover:text-indigo-800; }
+    .store-kicker { @apply text-xs font-black uppercase tracking-[.18em] text-indigo-600; }
+    .store-eyebrow { @apply inline-flex items-center rounded-full border border-white/20 bg-white/10 px-4 py-2 text-[11px] font-black uppercase tracking-[.18em] text-cyan-200; }
+    .store-product-grid { @apply grid grid-cols-2 gap-3 sm:gap-5 md:grid-cols-3 lg:grid-cols-4; }
+    .store-button-primary { @apply inline-flex items-center rounded-full bg-indigo-600 px-5 py-3 text-sm font-extrabold text-white shadow-lg shadow-indigo-200 transition hover:-translate-y-0.5 hover:bg-indigo-700 disabled:cursor-not-allowed disabled:bg-slate-300 disabled:shadow-none; }
+    .store-button-outline { @apply inline-flex items-center rounded-full border border-slate-300 px-5 py-3 text-sm font-extrabold text-slate-800 transition hover:border-indigo-300 hover:text-indigo-600; }
+    .store-button-light { @apply inline-flex items-center rounded-full bg-white px-6 py-3.5 text-sm font-black text-slate-950 shadow-xl transition hover:-translate-y-0.5; }
+    .store-hero-button { @apply inline-flex items-center rounded-full bg-cyan-300 px-6 py-3.5 text-sm font-black uppercase tracking-[.08em] text-slate-950 shadow-xl shadow-cyan-950/20 transition hover:-translate-y-0.5 hover:bg-cyan-200; }
+    .store-hero-secondary { @apply inline-flex items-center rounded-full border border-white/25 bg-white/10 px-6 py-3.5 text-sm font-black uppercase tracking-[.08em] text-white transition hover:bg-white/20; }
+    .store-nav-link { @apply transition hover:text-indigo-600; }
+    .store-mobile-link { @apply rounded-2xl px-4 py-3 transition hover:bg-indigo-50 hover:text-indigo-600; }
+    .store-footer-title { @apply mb-4 text-sm font-black uppercase tracking-[.16em] text-white; }
+    .store-input { @apply w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-indigo-400 focus:ring-4 focus:ring-indigo-100; }
+    .store-label { @apply text-xs font-bold text-slate-700; }
+    .store-filter-pill { @apply shrink-0 rounded-full border border-slate-200 bg-white px-4 py-2.5 text-sm font-bold text-slate-600 transition hover:border-indigo-300 hover:text-indigo-600; }
+    .store-filter-pill.active { @apply border-indigo-600 bg-indigo-600 text-white; }
+    .store-empty { @apply rounded-3xl border border-dashed border-slate-300 bg-white p-8 text-center text-sm text-slate-500; }
+    .store-checkout-panel { @apply rounded-3xl border border-slate-200 bg-white p-6 sm:p-8; }
+    .store-checkout-panel h2 { @apply text-xl font-black; }
+    .store-choice { @apply flex cursor-pointer gap-3 rounded-2xl border border-slate-200 p-4 transition has-[:checked]:border-indigo-500 has-[:checked]:bg-indigo-50; }
+    .store-choice input { @apply mt-1 h-4 w-4 text-indigo-600; }
+    .store-choice strong { @apply block text-sm; }
+    .store-choice small { @apply mt-1 block text-xs leading-5 text-slate-500; }
+    .store-meta-label { @apply mb-1 block text-[10px] font-black uppercase tracking-[.16em] text-slate-400; }
+}
+
+.storefront-body { font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+.store-hero { background: radial-gradient(circle at 83% 10%, rgba(34,211,238,.35), transparent 24%), radial-gradient(circle at 12% 100%, rgba(139,92,246,.42), transparent 35%), linear-gradient(135deg, #111827 0%, #312e81 55%, #4338ca 100%); }
+.store-product-placeholder { display:grid; place-items:center; height:100%; color:#a5b4fc; padding:22%; }
+.store-product-placeholder svg { width:100%; max-width:150px; }
+.store-device-stage { position:relative; min-height:300px; perspective:900px; }
+.store-device { position:absolute; box-shadow:0 35px 70px rgba(0,0,0,.4); }
+.store-device-phone { z-index:3; width:120px; height:235px; right:8%; top:45px; padding:8px; border:4px solid #e2e8f0; border-radius:30px; background:#0f172a; transform:rotate(9deg); }
+.store-device-phone div { width:100%; height:100%; border-radius:20px; background:radial-gradient(circle at 50% 25%,#67e8f9,transparent 23%),linear-gradient(145deg,#4f46e5,#0f172a 70%); }
+.store-device-laptop { z-index:2; left:2%; top:35px; width:78%; height:190px; padding:10px 10px 0; border-radius:18px 18px 7px 7px; background:#dbeafe; transform:rotateY(-10deg) rotateZ(-3deg); }
+.store-device-screen { display:grid; height:100%; place-items:center; border-radius:10px 10px 2px 2px; background:linear-gradient(145deg,#111827,#4338ca); color:#a5f3fc; font-size:30px; font-weight:900; line-height:.85; letter-spacing:-.05em; text-align:center; }
+.store-device-laptop i { position:absolute; left:-7%; right:-7%; bottom:-17px; height:18px; border-radius:3px 3px 15px 15px; background:#f8fafc; }
+.store-orb { position:absolute; border-radius:999px; background:#22d3ee; filter:blur(1px); box-shadow:0 0 40px rgba(34,211,238,.6); }
+.store-orb-one { width:30px; height:30px; left:4%; top:5px; }.store-orb-two { width:16px; height:16px; right:2%; bottom:20px; }
+
+@media (max-width: 640px) {
+    .store-product-grid { column-gap:.75rem; row-gap:1rem; }
+    .store-product-grid article > div { padding:.875rem; }
+    .store-device-stage { display:none; }
+}

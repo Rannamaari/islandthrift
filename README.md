@@ -1,6 +1,6 @@
 # Island Thrift
 
-Island Thrift is a Laravel-based retail point-of-sale and inventory management application. It includes multi-company and multi-branch access, product and inventory management, purchasing, sales, customer and supplier ledgers, cashier shifts, receipt printing, reporting, and English/Dhivehi localization.
+Island Thrift is a Laravel-based ecommerce, point-of-sale, and inventory management application. The public storefront, guest checkout, Filament admin, purchasing, sales, stock, customer and supplier ledgers, cashier shifts, receipts, and reporting all use the same database.
 
 ## Requirements
 
@@ -31,6 +31,16 @@ The demo seeder creates these local accounts:
 - Password for both: `password`
 
 Change or remove the demo credentials before deploying the application.
+
+After starting Laravel, open the storefront at `http://127.0.0.1:8000` and the administration panel at `http://127.0.0.1:8000/admin`.
+
+## Storefront management
+
+- Use **Products** in the admin panel to set the online sale price, visibility, featured status, short description, and product images.
+- Use **Categories** to upload category images.
+- Use **Storefront Settings** to select the online branch and warehouse and manage WhatsApp, social links, delivery methods, and payment methods.
+- Website checkouts appear in **Sales** with the `Website` channel. Updating a website order to paid records its customer payment; cancelling an unpaid website order restores inventory.
+- Checkout currently supports configurable offline payment methods. No online card gateway is bundled.
 
 ## Development
 

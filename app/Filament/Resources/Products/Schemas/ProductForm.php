@@ -9,6 +9,7 @@ use App\Models\Product;
 use App\Models\Warehouse;
 use App\Services\InventoryQueryService;
 use App\Support\InventoryStatus;
+use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Repeater;
@@ -78,6 +79,28 @@ class ProductForm
                                     ->default(true)
                                     ->inline(false),
                             ]),
+                    ]),
+                Section::make('Online Store')
+                    ->description('Control how this product appears on the Island Thrift website.')
+                    ->schema([
+                        Grid::make(3)->schema([
+                            Toggle::make('show_online')->label('Show Online')->default(false)->inline(false),
+                            Toggle::make('is_featured')->label('Featured Product')->default(false)->inline(false),
+                            TextInput::make('sale_price')->label('Online Sale Price')->numeric()->minValue(0),
+                        ]),
+                        Textarea::make('short_description')->rows(2)->maxLength(500)->columnSpanFull(),
+                        FileUpload::make('images')
+                            ->label('Product Images')
+                            ->image()
+                            ->multiple()
+                            ->reorderable()
+                            ->imageEditor()
+                            ->disk('public')
+                            ->directory('products')
+                            ->visibility('public')
+                            ->maxSize(4096)
+                            ->maxFiles(8)
+                            ->columnSpanFull(),
                     ]),
                 Section::make('Pricing')
                     ->schema([

@@ -9,7 +9,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Sale extends Model
 {
@@ -45,6 +44,14 @@ class Sale extends Model
         'voided_at',
         'cancelled_at',
         'receipt_snapshot',
+        'sales_channel',
+        'order_status',
+        'payment_status',
+        'website_payment_method',
+        'delivery_method',
+        'delivery_charge',
+        'delivery_address',
+        'tracking_token',
     ];
 
     /**
@@ -65,6 +72,7 @@ class Sale extends Model
             'voided_at' => 'datetime',
             'cancelled_at' => 'datetime',
             'receipt_snapshot' => 'array',
+            'delivery_charge' => 'decimal:4',
         ];
     }
 

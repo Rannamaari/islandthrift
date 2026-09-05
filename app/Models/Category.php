@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Str;
 use InvalidArgumentException;
 
 class Category extends Model
@@ -25,6 +26,8 @@ class Category extends Model
         'description',
         'parent_id',
         'is_active',
+        'slug',
+        'image_path',
     ];
 
     /**
@@ -40,6 +43,19 @@ class Category extends Model
     protected static function booted(): void
     {
         static::saving(function (Category $category): void {
+            if (blank($category->slug) || $category->isDirty('name')) {
+                $base = Str::slug($category->name) ?: Str::lower($category->code ?: 'category');
+                $slug = $base;
+                $suffix = 2;
+
+                while (static::query()->where('company_id', $category->company_id)->where('slug', $slug)->whereKeyNot($category->id)->exists()) {
+                    $slug = "{$base}-{$suffix}";
+                    $suffix++;
+                }
+
+                $category->slug = $slug;
+            }
+
             if (! $category->parent_id) {
                 return;
             }
