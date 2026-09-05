@@ -7,6 +7,7 @@ Island Thrift is a Laravel-based ecommerce, point-of-sale, and inventory managem
 - PHP 8.2 or newer
 - Composer
 - Node.js and npm
+- PHP extensions: PostgreSQL PDO, GD, Intl, Mbstring, XML, cURL, Fileinfo, and ZIP
 - PHP SQLite extension for the default local setup
 
 ## Local setup
@@ -64,6 +65,53 @@ vendor/bin/pint --test
 ```bash
 php artisan island-thrift:import-products COMPANY_UUID products.csv
 ```
+
+## DigitalOcean production deployment
+
+Production templates are available in [`deploy/`](deploy/) and [`.env.production.example`](.env.production.example). The environment template is configured for the DigitalOcean PostgreSQL host, port `25060`, user `doadmin`, and required SSL. Replace `YOUR_DOMAIN`, `YOUR_DATABASE_NAME`, `password`, and the generated application key on the droplet. Never commit the real `.env` file.
+
+For a first deployment on an Ubuntu droplet with Nginx and PHP-FPM already installed:
+
+```bash
+sudo mkdir -p /var/www/islandthrift
+sudo chown "$USER":www-data /var/www/islandthrift
+git clone https://github.com/Rannamaari/islandthrift.git /var/www/islandthrift
+cd /var/www/islandthrift
+cp .env.production.example .env
+composer install --no-dev --prefer-dist --no-interaction --optimize-autoloader
+php artisan key:generate
+sudo chown -R "$USER":www-data storage bootstrap/cache
+sudo chmod -R ug+rwx storage bootstrap/cache
+```
+
+Edit `.env`, enter the real domain, database name, and database password, then run:
+
+```bash
+ISLAND_THRIFT_DIR=/var/www/islandthrift bash deploy/deploy.sh
+```
+
+The deployment script installs production dependencies, builds assets, places Laravel briefly into maintenance mode, runs migrations without demo seeders, creates the public storage link, caches the application configuration, and restarts queue workers. If the application is already installed elsewhere, set `ISLAND_THRIFT_DIR` to that directory.
+
+Install the included Nginx and queue worker templates after replacing their domain, PHP-FPM socket, and application paths if needed:
+
+```bash
+sudo cp deploy/nginx-islandthrift.conf /etc/nginx/sites-available/islandthrift
+sudo ln -s /etc/nginx/sites-available/islandthrift /etc/nginx/sites-enabled/islandthrift
+sudo nginx -t
+sudo systemctl reload nginx
+sudo cp deploy/islandthrift-worker.service /etc/systemd/system/islandthrift-worker.service
+sudo systemctl daemon-reload
+sudo systemctl enable --now islandthrift-worker
+```
+
+After DNS points to the droplet, issue the HTTPS certificate and confirm Laravel's health endpoint:
+
+```bash
+sudo certbot --nginx -d YOUR_DOMAIN -d www.YOUR_DOMAIN
+curl --fail https://YOUR_DOMAIN/up
+```
+
+Do not run `php artisan migrate --seed` in production because the demo seeder creates sample products and known development passwords.
 
 ## License
 
