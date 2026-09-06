@@ -13,7 +13,10 @@ use Illuminate\Support\Facades\DB;
 
 class CashierShiftService
 {
-    public function __construct(private readonly NumberSequenceService $numberSequenceService) {}
+    public function __construct(
+        private readonly NumberSequenceService $numberSequenceService,
+        private readonly TelegramSalesBotService $telegramSalesBot,
+    ) {}
 
     public function activeFor(array $context, string $cashierId): ?CashierShift
     {
@@ -43,7 +46,7 @@ class CashierShiftService
                 return $existing;
             }
 
-            return CashierShift::query()->create([
+            $shift = CashierShift::query()->create([
                 'company_id' => $context['company_id'],
                 'branch_id' => $context['branch_id'],
                 'warehouse_id' => $context['warehouse_id'],
@@ -55,6 +58,11 @@ class CashierShiftService
                 'opening_notes' => $notes,
                 'opened_at' => now(),
             ]);
+
+            $shiftId = $shift->id;
+            DB::afterCommit(fn () => $this->telegramSalesBot->notifyShiftOpened($shiftId));
+
+            return $shift;
         });
     }
 
@@ -131,6 +139,9 @@ class CashierShiftService
                 'report_snapshot' => $snapshot,
                 'closed_at' => $closedAt,
             ])->save();
+
+            $shiftId = $shift->id;
+            DB::afterCommit(fn () => $this->telegramSalesBot->notifyShiftClosed($shiftId));
 
             return $shift->fresh(['company', 'branch', 'warehouse', 'cashier']);
         });

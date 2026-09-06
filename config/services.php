@@ -44,4 +44,15 @@ return [
         'timeout' => env('DHIRAAGU_SMS_TIMEOUT', 20),
     ],
 
+    'telegram_sales' => [
+        'enabled' => env('TELEGRAM_SALES_ENABLED', false),
+        'bot_token' => env('TELEGRAM_BOT_TOKEN'),
+        'allowed_chat_ids' => array_values(array_filter(array_map(
+            'trim',
+            explode(',', (string) env('TELEGRAM_ALLOWED_CHAT_IDS', '')),
+        ))),
+        'webhook_secret' => env('TELEGRAM_WEBHOOK_SECRET'),
+        'timeout' => env('TELEGRAM_TIMEOUT', 10),
+    ],
+
 ];

@@ -30,6 +30,7 @@ class SalesService
         private readonly NumberSequenceService $numberSequenceService,
         private readonly CustomerLedgerService $customerLedgerService,
         private readonly ReceiptProfileResolver $receiptProfileResolver,
+        private readonly TelegramSalesBotService $telegramSalesBot,
     ) {}
 
     public function createSale(
@@ -135,6 +136,7 @@ class SalesService
 
             if ($status === SaleStatus::Completed) {
                 $this->finalizeSale($sale, $payments, $customer, $attributes);
+                $this->notifySaleAfterCommit($sale);
             }
 
             return $sale->fresh('items', 'payments');
@@ -163,6 +165,7 @@ class SalesService
                 'created_by' => $completedBy,
                 'completed_at' => now(),
             ]);
+            $this->notifySaleAfterCommit($sale);
 
             return $sale->fresh('items', 'payments');
         });
@@ -270,6 +273,7 @@ class SalesService
                 'created_by' => $attributes['created_by'] ?? null,
                 'completed_at' => $attributes['completed_at'] ?? now(),
             ]);
+            $this->notifySaleAfterCommit($sale);
 
             return $sale->fresh('items', 'payments');
         });
@@ -584,6 +588,12 @@ class SalesService
             ->sum('amount');
 
         return $this->formatDecimal($balance);
+    }
+
+    private function notifySaleAfterCommit(Sale $sale): void
+    {
+        $saleId = $sale->id;
+        DB::afterCommit(fn () => $this->telegramSalesBot->notifySale($saleId));
     }
 
     private function prepareSaleItems(string $companyId, string $branchId, array $items): Collection
