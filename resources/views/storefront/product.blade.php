@@ -3,6 +3,7 @@
     $price = $catalog->price($product); $regular = $catalog->regularPrice($product); $stock = $catalog->available($product);
     $images = collect($product->images ?? []); $mainImage = $images->first(); $mainUrl = $mainImage ? \Illuminate\Support\Facades\Storage::disk('public')->url($mainImage) : null;
     $metaDescription = $product->short_description ?: Str::limit(strip_tags($product->description ?: "Buy {$product->name} from Island Thrift in Himmafushi, Maldives."), 155);
+    $analyticsViewItem = ['currency'=>$product->branchPrices->first()?->currency ?? 'MVR','value'=>$price,'items'=>[['item_id'=>$product->sku,'item_name'=>$product->name,'item_brand'=>$product->brand?->name,'item_category'=>$product->category?->name,'price'=>$price]]];
 @endphp
 @extends('layouts.storefront')
 @section('title', $product->name.' | Island Thrift')
@@ -11,8 +12,17 @@
 @section('og_type', 'product')
 @section('social_image', $mainUrl ?: '')
 @push('head')
-<script type="application/ld+json">{!! json_encode(['@context'=>'https://schema.org','@type'=>'Product','name'=>$product->name,'description'=>$metaDescription,'sku'=>$product->sku,'image'=>$mainUrl ? [$mainUrl] : [],'brand'=>$product->brand ? ['@type'=>'Brand','name'=>$product->brand->name] : null,'offers'=>['@type'=>'Offer','url'=>route('store.product',$product->slug),'priceCurrency'=>$product->branchPrices->first()?->currency ?? 'MVR','price'=>number_format($price,2,'.',''),'availability'=>$stock > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock']], JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE) !!}</script>
+<script type="application/ld+json">{!! json_encode(['@context'=>'https://schema.org','@graph'=>[['@type'=>'Product','@id'=>route('store.product',$product->slug).'#product','name'=>$product->name,'description'=>$metaDescription,'sku'=>$product->sku,'category'=>$product->category?->name,'image'=>$images->map(fn($image)=>\Illuminate\Support\Facades\Storage::disk('public')->url($image))->values()->all(),'brand'=>$product->brand ? ['@type'=>'Brand','name'=>$product->brand->name] : null,'offers'=>['@type'=>'Offer','url'=>route('store.product',$product->slug),'priceCurrency'=>$product->branchPrices->first()?->currency ?? 'MVR','price'=>number_format($price,2,'.',''),'priceSpecification'=>['@type'=>'UnitPriceSpecification','price'=>number_format($price,2,'.',''),'priceCurrency'=>$product->branchPrices->first()?->currency ?? 'MVR','valueAddedTaxIncluded'=>true],'availability'=>$stock > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock','itemCondition'=>'https://schema.org/NewCondition','seller'=>['@id'=>route('store.home').'#store']]],['@type'=>'BreadcrumbList','itemListElement'=>collect([['@type'=>'ListItem','position'=>1,'name'=>'Home','item'=>route('store.home')],['@type'=>'ListItem','position'=>2,'name'=>$product->category?->name ?? 'Shop','item'=>$product->category ? route('store.category',$product->category->slug) : route('store.shop')],['@type'=>'ListItem','position'=>3,'name'=>$product->name,'item'=>route('store.product',$product->slug)]])->all()]]], JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE|JSON_HEX_TAG) !!}</script>
 @endpush
+@if(config('services.google.analytics_measurement_id'))
+@push('scripts')
+<script>
+if (typeof gtag === 'function') {
+    gtag('event', 'view_item', {{ \Illuminate\Support\Js::from($analyticsViewItem) }});
+}
+</script>
+@endpush
+@endif
 @section('content')
 <section class="store-container pt-8 sm:pt-12"><nav class="mb-7 text-sm text-slate-500"><a href="{{ route('store.shop') }}">Shop</a> <span class="mx-2">/</span> @if($product->category)<a href="{{ route('store.category', $product->category->slug) }}">{{ $product->category->name }}</a><span class="mx-2">/</span>@endif <span class="text-slate-800">{{ $product->name }}</span></nav>
 <div class="grid gap-9 lg:grid-cols-2 lg:gap-14">

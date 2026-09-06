@@ -1,10 +1,22 @@
 @extends('layouts.storefront')
 @section('title', ($currentCategory?->name ? $currentCategory->name.' | ' : '').'Shop Electronics | Island Thrift')
 @section('description', $currentCategory?->description ?: 'Browse phones, laptops, audio, accessories and gadgets available from Island Thrift in Himmafushi.')
+@php
+    $seoQuery = collect(request()->query())->except('page')->filter(fn ($value) => filled($value));
+    $canonicalBase = $currentCategory ? route('store.category', $currentCategory->slug) : route('store.shop');
+    $canonicalUrl = request()->integer('page', 1) > 1 ? $canonicalBase.'?page='.request()->integer('page') : $canonicalBase;
+@endphp
+@section('canonical', $canonicalUrl)
+@if($seoQuery->isNotEmpty()) @section('robots', 'noindex, follow') @endif
+@push('head')
+@if($currentCategory)
+<script type="application/ld+json">{!! json_encode(['@context'=>'https://schema.org','@type'=>'CollectionPage','name'=>$currentCategory->name,'description'=>$currentCategory->description ?: "Shop {$currentCategory->name} from Island Thrift in Himmafushi, Maldives.",'url'=>route('store.category',$currentCategory->slug),'mainEntity'=>['@type'=>'ItemList','numberOfItems'=>$products->total(),'itemListElement'=>$products->getCollection()->values()->map(fn($product,$index)=>['@type'=>'ListItem','position'=>(($products->currentPage()-1)*$products->perPage())+$index+1,'url'=>route('store.product',$product->slug),'name'=>$product->name])->all()]], JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE|JSON_HEX_TAG) !!}</script>
+@endif
+@endpush
 
 @section('content')
 <section class="store-container pt-10 sm:pt-14">
-    <span class="store-kicker">Island Thrift catalogue</span><h1 class="mt-2 text-4xl font-black tracking-tight sm:text-5xl">{{ $currentCategory?->name ?? 'Shop all products' }}</h1><p class="mt-3 max-w-2xl text-slate-600">Find useful electronics and gadgets, powered by the same live catalogue and stock used in our shop.</p>
+    <span class="store-kicker">Island Thrift catalogue · Himmafushi</span><h1 class="mt-2 text-4xl font-black tracking-tight sm:text-5xl">{{ $currentCategory?->name ?? 'Shop electronics and gadgets in Himmafushi' }}</h1><p class="mt-3 max-w-2xl text-slate-600">{{ $currentCategory?->description ?: 'Browse phones, laptops, audio, accessories and useful everyday gadgets available from Island Thrift in Himmafushi, Maldives, with local and Malé delivery.' }}</p>
 </section>
 <section id="categories" class="store-container mt-8 flex gap-2 overflow-x-auto pb-2"><a href="{{ route('store.shop') }}" class="store-filter-pill {{ !request('category') ? 'active' : '' }}">All</a>@foreach($categories as $category)<a href="{{ route('store.category', $category->slug) }}" class="store-filter-pill {{ request('category') === $category->id ? 'active' : '' }}">{{ $category->name }}</a>@endforeach</section>
 <section class="store-container mt-6 grid items-start gap-8 lg:grid-cols-[260px_1fr]">

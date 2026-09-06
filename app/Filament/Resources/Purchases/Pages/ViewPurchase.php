@@ -16,8 +16,8 @@ use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
-use Filament\Resources\Pages\ViewRecord;
 use Filament\Notifications\Notification;
+use Filament\Resources\Pages\ViewRecord;
 use Illuminate\Support\Carbon;
 use Illuminate\Validation\ValidationException;
 
@@ -74,6 +74,7 @@ class ViewPurchase extends ViewRecord
 
                         if (! $purchaseItem) {
                             $errors["items.{$index}.receive_now"] = 'This purchase line no longer exists.';
+
                             continue;
                         }
 
@@ -198,7 +199,7 @@ class ViewPurchase extends ViewRecord
                         $this->getRecord()->id,
                         $quantities,
                         [
-                            'return_date' => $data['return_date'] ?? now()->toDateString(),
+                            'return_date' => $data['return_date'] ?? now(config('app.business_timezone'))->toDateString(),
                             'notes' => $data['notes'] ?? null,
                             'created_by' => auth()->id(),
                         ],

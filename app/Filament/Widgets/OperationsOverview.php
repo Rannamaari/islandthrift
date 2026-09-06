@@ -33,7 +33,7 @@ class OperationsOverview extends StatsOverviewWidget
             ->reportable()
             ->where('company_id', $companyId)
             ->when($warehouseId, fn ($query) => $query->where('warehouse_id', $warehouseId))
-            ->whereDate('sale_date', today());
+            ->whereDate('sale_date', now(config('app.business_timezone'))->toDateString());
 
         $todaySales = (float) $todaySalesQuery->sum('grand_total');
         $todayTransactions = (int) (clone $todaySalesQuery)->count();
@@ -42,7 +42,7 @@ class OperationsOverview extends StatsOverviewWidget
             ->join('sales', 'sales.id', '=', 'sale_items.sale_id')
             ->where('sale_items.company_id', $companyId)
             ->when($warehouseId, fn ($query) => $query->where('sales.warehouse_id', $warehouseId))
-            ->whereDate('sales.sale_date', today());
+            ->whereDate('sales.sale_date', now(config('app.business_timezone'))->toDateString());
         $grossProfit = (float) Sale::constrainToReportable($grossProfitQuery)
             ->selectRaw('COALESCE(SUM((sale_items.unit_price - sale_items.unit_cost) * sale_items.quantity), 0) as gross_profit')
             ->value('gross_profit');

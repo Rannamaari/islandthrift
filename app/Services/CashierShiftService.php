@@ -115,7 +115,7 @@ class CashierShiftService
             $closedAt = now();
 
             $snapshot = [
-                'generated_at' => $closedAt->toIso8601String(),
+                'generated_at' => $closedAt->copy()->timezone(config('app.business_timezone'))->toIso8601String(),
                 'sales_count' => (int) ($sales->sales_count ?? 0),
                 'subtotal' => $this->decimal((float) ($sales->subtotal ?? 0)),
                 'discount_total' => $this->decimal((float) ($sales->discount_total ?? 0)),

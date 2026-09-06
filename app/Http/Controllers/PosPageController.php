@@ -57,7 +57,7 @@ class PosPageController extends Controller
                     'shift_number' => $shift->shift_number,
                     'currency' => $shift->currency,
                     'opening_cash' => $shift->opening_cash,
-                    'opened_at' => $shift->opened_at?->toIso8601String(),
+                    'opened_at' => $shift->opened_at?->timezone(config('app.business_timezone'))->toIso8601String(),
                 ] : null,
                 'walk_in_customer' => $walkInCustomer ? [
                     'id' => $walkInCustomer->id,

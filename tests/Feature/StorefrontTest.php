@@ -39,7 +39,7 @@ class StorefrontTest extends TestCase
             ->assertSee('class="store-rich-text mt-4"', false)
             ->assertSee('<h2>Built for island life</h2>', false)
             ->assertSee('<ul><li><strong>Fast</strong> and dependable</li></ul>', false)
-            ->assertDontSee('<script>', false)
+            ->assertDontSee('<script>alert("unsafe")</script>', false)
             ->assertDontSee('alert("unsafe")', false);
     }
 

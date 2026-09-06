@@ -67,6 +67,9 @@ return [
 
     'timezone' => 'UTC',
 
+    // Business-facing dates and reporting boundaries use Maldives Time (UTC+5).
+    'business_timezone' => env('APP_BUSINESS_TIMEZONE', 'Indian/Maldives'),
+
     /*
     |--------------------------------------------------------------------------
     | Application Locale Configuration

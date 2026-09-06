@@ -88,7 +88,7 @@ class TelegramSalesBotService
         $message = $update['message'] ?? null;
         $chatId = isset($message['chat']['id']) ? (string) $message['chat']['id'] : null;
 
-        if (! $chatId || ! $this->isAllowed($chatId)) {
+        if (! $chatId || ! $this->canUseCommands($chatId)) {
             Log::warning('Ignored unauthorized Telegram bot update.', [
                 'chat_id' => $chatId,
                 'username' => $message['from']['username'] ?? null,
@@ -140,7 +140,10 @@ class TelegramSalesBotService
     {
         $sales = Sale::query()->with(['items.product', 'payments'])
             ->whereIn('status', [SaleStatus::Completed, SaleStatus::PartiallyRefunded, SaleStatus::Refunded])
-            ->whereDate('completed_at', now()->toDateString())->orderBy('completed_at')->get();
+            ->whereBetween('completed_at', [
+                now(config('app.business_timezone'))->startOfDay()->utc(),
+                now(config('app.business_timezone'))->endOfDay()->utc(),
+            ])->orderBy('completed_at')->get();
 
         if ($sales->isEmpty()) {
             return 'No sales recorded today.';
@@ -232,7 +235,7 @@ class TelegramSalesBotService
         }
 
         $sent = 0;
-        foreach ($this->allowedChatIds() as $chatId) {
+        foreach ($this->notificationChatIds() as $chatId) {
             try {
                 $this->send($chatId, $message);
                 $sent++;
@@ -277,14 +280,20 @@ class TelegramSalesBotService
     }
 
     /** @return list<string> */
-    private function allowedChatIds(): array
+    private function notificationChatIds(): array
     {
-        return array_map('strval', config('services.telegram_sales.allowed_chat_ids', []));
+        return array_map('strval', config('services.telegram_sales.notification_chat_ids', []));
     }
 
-    private function isAllowed(string $chatId): bool
+    /** @return list<string> */
+    private function commandChatIds(): array
     {
-        return in_array($chatId, $this->allowedChatIds(), true);
+        return array_map('strval', config('services.telegram_sales.command_chat_ids', []));
+    }
+
+    private function canUseCommands(string $chatId): bool
+    {
+        return in_array($chatId, $this->commandChatIds(), true);
     }
 
     private function money(float|string|null $amount, ?string $currency): string
@@ -299,6 +308,6 @@ class TelegramSalesBotService
 
     private function dateTime(?Carbon $date): string
     {
-        return $date?->timezone(config('app.timezone'))->format('d M Y, h:i A') ?? 'Unknown';
+        return $date ? $date->timezone(config('app.business_timezone'))->format('d M Y, h:i A').' MVT' : 'Unknown';
     }
 }

@@ -9,6 +9,25 @@
     $pageDescription = trim($__env->yieldContent('description', 'Shop electronics, phones, laptops, audio and everyday gadgets from Island Thrift in Himmafushi, Maldives.'));
     $canonical = trim($__env->yieldContent('canonical', url()->current()));
     $socialImage = trim($__env->yieldContent('social_image', $logoPath ? asset($logoPath) : ''));
+    $robots = trim($__env->yieldContent('robots', 'index, follow, max-image-preview:large'));
+    $storeCategories = \App\Models\Category::query()->where('company_id', $storeCompany->id)->where('is_active', true)->whereHas('products', fn ($query) => $query->visibleOnline())->orderBy('name')->limit(8)->get(['name', 'slug']);
+    $localBusinessSchema = array_filter([
+        '@context' => 'https://schema.org',
+        '@type' => ['Store', 'ElectronicsStore'],
+        '@id' => route('store.home').'#store',
+        'name' => 'Island Thrift',
+        'url' => route('store.home'),
+        'logo' => $logoPath ? asset($logoPath) : null,
+        'image' => $socialImage ?: null,
+        'telephone' => $storeCompany->phone,
+        'email' => $storeCompany->email,
+        'currenciesAccepted' => 'MVR',
+        'address' => ['@type' => 'PostalAddress', 'addressLocality' => 'Himmafushi', 'addressRegion' => 'Kaafu Atoll', 'addressCountry' => 'MV'],
+        'areaServed' => [['@type' => 'Place', 'name' => 'Himmafushi'], ['@type' => 'City', 'name' => 'Malé'], ['@type' => 'Country', 'name' => 'Maldives']],
+    ]);
+    $configuredAnalyticsId = (string) config('services.google.analytics_measurement_id');
+    $googleAnalyticsId = preg_match('/^G-[A-Z0-9]+$/i', $configuredAnalyticsId) ? strtoupper($configuredAnalyticsId) : null;
+    $googleSiteVerification = trim((string) config('services.google.site_verification'));
 @endphp
 <!doctype html>
 <html lang="en" class="scroll-smooth">
@@ -16,14 +35,31 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="{{ $pageDescription }}">
+    <meta name="robots" content="{{ $robots }}">
+    @if($googleSiteVerification)<meta name="google-site-verification" content="{{ $googleSiteVerification }}">@endif
     <link rel="canonical" href="{{ $canonical }}">
     <meta property="og:type" content="@yield('og_type', 'website')">
     <meta property="og:title" content="{{ $pageTitle }}">
     <meta property="og:description" content="{{ $pageDescription }}">
     <meta property="og:url" content="{{ $canonical }}">
+    <meta property="og:site_name" content="Island Thrift">
+    <meta property="og:locale" content="en_MV">
     @if($socialImage)<meta property="og:image" content="{{ $socialImage }}">@endif
     <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{{ $pageTitle }}">
+    <meta name="twitter:description" content="{{ $pageDescription }}">
+    @if($socialImage)<meta name="twitter:image" content="{{ $socialImage }}">@endif
     <title>{{ $pageTitle }}</title>
+    <script type="application/ld+json">{!! json_encode($localBusinessSchema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) !!}</script>
+    @if($googleAnalyticsId)
+        <script async src="https://www.googletagmanager.com/gtag/js?id={{ $googleAnalyticsId }}"></script>
+        <script>
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', @json($googleAnalyticsId));
+        </script>
+    @endif
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @stack('head')
 </head>
@@ -92,7 +128,7 @@
     <footer class="mt-20 bg-slate-950 text-slate-300">
         <div class="store-container grid gap-10 py-14 sm:grid-cols-2 lg:grid-cols-4">
             <div><div class="mb-4">@if($logoPath)<img src="{{ asset($logoPath) }}" width="1774" height="887" alt="Island Thrift" class="h-16 w-32 object-contain">@else<div class="flex items-center gap-3"><span class="grid h-10 w-10 place-items-center rounded-2xl bg-indigo-500 font-black text-white">IT</span><strong class="text-lg text-white">Island Thrift</strong></div>@endif</div><p class="max-w-xs text-sm leading-6 text-slate-400">Phones, laptops, audio, accessories and useful everyday gadgets, locally in Himmafushi.</p></div>
-            <div><h2 class="store-footer-title">Shop</h2><div class="grid gap-2.5 text-sm"><a href="{{ route('store.shop') }}">All Products</a><a href="{{ route('store.shop', ['sort' => 'newest']) }}">New Arrivals</a><a href="{{ route('store.cart') }}">Cart</a></div></div>
+            <div><h2 class="store-footer-title">Shop</h2><div class="grid gap-2.5 text-sm"><a href="{{ route('store.shop') }}">All Products</a>@foreach($storeCategories->take(5) as $footerCategory)<a href="{{ route('store.category', $footerCategory->slug) }}">{{ $footerCategory->name }}</a>@endforeach</div></div>
             <div><h2 class="store-footer-title">Help</h2><div class="grid gap-2.5 text-sm"><a href="{{ route('store.contact') }}">Contact Us</a><a href="{{ route('store.contact') }}#location">Himmafushi, Maldives</a><a href="{{ route('store.shop') }}">Browse Categories</a></div></div>
             <div><h2 class="store-footer-title">Contact</h2><div class="grid gap-2.5 text-sm text-slate-400">@if($storeCompany->phone)<a href="tel:{{ $storeCompany->phone }}">{{ $storeCompany->phone }}</a>@endif @if($storeCompany->email)<a href="mailto:{{ $storeCompany->email }}">{{ $storeCompany->email }}</a>@endif <span>Himmafushi, Maldives</span></div></div>
         </div>

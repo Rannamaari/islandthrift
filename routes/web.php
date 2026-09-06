@@ -11,7 +11,9 @@ use App\Http\Controllers\Storefront\HomeController;
 use App\Http\Controllers\Storefront\OrderController;
 use App\Http\Controllers\Storefront\ProductController;
 use App\Http\Controllers\Storefront\ShopController;
+use App\Models\Category;
 use App\Services\StorefrontCatalog;
+use App\Services\StorefrontContext;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -33,9 +35,16 @@ Route::post('/customer/logout', [CustomerRegistrationController::class, 'logout'
 Route::get('/order/{token}', OrderController::class)->name('store.order');
 Route::view('/contact', 'storefront.contact')->name('store.contact');
 Route::get('/sitemap.xml', function (StorefrontCatalog $catalog) {
-    $products = $catalog->query()->get(['products.id', 'products.slug', 'products.updated_at']);
+    $products = $catalog->query()->get(['products.id', 'products.slug', 'products.name', 'products.images', 'products.updated_at']);
+    $company = app(StorefrontContext::class)->company();
+    $categories = Category::query()
+        ->where('company_id', $company->id)
+        ->where('is_active', true)
+        ->whereHas('products', fn ($query) => $query->visibleOnline())
+        ->orderBy('name')
+        ->get(['id', 'slug', 'updated_at']);
 
-    return response()->view('storefront.sitemap', compact('products'))->header('Content-Type', 'application/xml');
+    return response()->view('storefront.sitemap', compact('products', 'categories'))->header('Content-Type', 'application/xml');
 })->name('store.sitemap');
 
 Route::post('/locale/{locale}', function (Request $request, string $locale) {

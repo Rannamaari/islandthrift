@@ -30,8 +30,9 @@ class DailyBranchSalesChart extends ChartWidget
         $warehouseId = AdminSupport::activeWarehouseId();
         $branchId = $warehouseId ? Warehouse::query()->where('company_id', $companyId)->whereKey($warehouseId)->value('branch_id') : null;
         $branch = $branchId ? Branch::query()->where('company_id', $companyId)->find($branchId) : null;
-        $start = today()->subDays(13)->toDateString();
-        $dates = collect(range(0, 13))->map(fn (int $day): Carbon => today()->subDays(13 - $day));
+        $today = Carbon::now(config('app.business_timezone'))->startOfDay();
+        $start = $today->copy()->subDays(13)->toDateString();
+        $dates = collect(range(0, 13))->map(fn (int $day): Carbon => $today->copy()->subDays(13 - $day));
         $totals = $branch
             ? Sale::query()
                 ->reportable()

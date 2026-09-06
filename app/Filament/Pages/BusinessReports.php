@@ -12,6 +12,7 @@ use App\Models\SaleReturn;
 use App\Models\SaleReturnItem;
 use Filament\Pages\Page;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
@@ -49,8 +50,9 @@ class BusinessReports extends Page
     {
         abort_unless(static::canAccess() && AdminSupport::companyId(), 403);
 
-        $this->dateFrom = today()->subDays(29)->toDateString();
-        $this->dateTo = today()->toDateString();
+        $today = Carbon::now(config('app.business_timezone'))->startOfDay();
+        $this->dateFrom = $today->copy()->subDays(29)->toDateString();
+        $this->dateTo = $today->toDateString();
         $this->branchId = AdminSupport::user()?->branch_id ?: $this->branches()->keys()->first();
     }
 

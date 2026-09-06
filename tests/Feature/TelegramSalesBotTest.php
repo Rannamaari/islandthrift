@@ -24,6 +24,8 @@ class TelegramSalesBotTest extends TestCase
             'enabled' => true,
             'bot_token' => 'test-token',
             'allowed_chat_ids' => ['111', '222'],
+            'notification_chat_ids' => ['111', '222'],
+            'command_chat_ids' => ['111'],
             'webhook_secret' => 'test-webhook-secret',
             'timeout' => 10,
         ]);
@@ -80,6 +82,11 @@ class TelegramSalesBotTest extends TestCase
 
         $this->postJson('/api/telegram/webhook', [
             'message' => ['chat' => ['id' => 999], 'from' => ['username' => 'intruder'], 'text' => '/sales'],
+        ], ['X-Telegram-Bot-Api-Secret-Token' => 'test-webhook-secret'])->assertOk();
+        Http::assertNothingSent();
+
+        $this->postJson('/api/telegram/webhook', [
+            'message' => ['chat' => ['id' => 222], 'from' => ['username' => 'notification_only'], 'text' => '/sales'],
         ], ['X-Telegram-Bot-Api-Secret-Token' => 'test-webhook-secret'])->assertOk();
         Http::assertNothingSent();
 

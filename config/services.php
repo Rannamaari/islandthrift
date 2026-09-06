@@ -51,8 +51,21 @@ return [
             'trim',
             explode(',', (string) env('TELEGRAM_ALLOWED_CHAT_IDS', '')),
         ))),
+        'notification_chat_ids' => array_values(array_filter(array_map(
+            'trim',
+            explode(',', (string) env('TELEGRAM_NOTIFICATION_CHAT_IDS', env('TELEGRAM_ALLOWED_CHAT_IDS', ''))),
+        ))),
+        'command_chat_ids' => array_values(array_filter(array_map(
+            'trim',
+            explode(',', (string) env('TELEGRAM_COMMAND_CHAT_IDS', env('TELEGRAM_ALLOWED_CHAT_IDS', ''))),
+        ))),
         'webhook_secret' => env('TELEGRAM_WEBHOOK_SECRET'),
         'timeout' => env('TELEGRAM_TIMEOUT', 10),
+    ],
+
+    'google' => [
+        'analytics_measurement_id' => env('GOOGLE_ANALYTICS_MEASUREMENT_ID'),
+        'site_verification' => env('GOOGLE_SITE_VERIFICATION'),
     ],
 
 ];

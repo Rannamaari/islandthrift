@@ -698,8 +698,8 @@ class PosApiController extends Controller
             'expected_cash' => $shift->expected_cash,
             'closing_cash' => $shift->closing_cash,
             'cash_variance' => $shift->cash_variance,
-            'opened_at' => $shift->opened_at?->toIso8601String(),
-            'closed_at' => $shift->closed_at?->toIso8601String(),
+            'opened_at' => $shift->opened_at?->timezone(config('app.business_timezone'))->toIso8601String(),
+            'closed_at' => $shift->closed_at?->timezone(config('app.business_timezone'))->toIso8601String(),
         ];
     }
 
@@ -762,7 +762,7 @@ class PosApiController extends Controller
             'currency' => $sale->currency,
             'customer' => $sale->customer?->name ?? 'Walk-in Customer',
             'amount' => (string) $sale->grand_total,
-            'created_at' => $sale->created_at?->toIso8601String(),
+            'created_at' => $sale->created_at?->timezone(config('app.business_timezone'))->toIso8601String(),
             'cashier' => $sale->creator?->name,
             'item_count' => $sale->items->count(),
         ];
@@ -775,7 +775,7 @@ class PosApiController extends Controller
         return [
             'id' => $sale->id,
             'sale_number' => $sale->sale_number,
-            'date' => $sale->cancelled_at?->toIso8601String() ?? $sale->completed_at?->toIso8601String() ?? $sale->created_at?->toIso8601String(),
+            'date' => $sale->cancelled_at?->timezone(config('app.business_timezone'))->toIso8601String() ?? $sale->completed_at?->timezone(config('app.business_timezone'))->toIso8601String() ?? $sale->created_at?->timezone(config('app.business_timezone'))->toIso8601String(),
             'customer' => $sale->customer?->name ?? 'Walk-in Customer',
             'customer_phone' => $sale->customer?->phone,
             'branch' => $sale->branch?->name,
@@ -803,8 +803,8 @@ class PosApiController extends Controller
             'sale_number' => $sale->sale_number,
             'status' => $sale->status->value,
             'sale_date' => $sale->sale_date?->toDateString(),
-            'completed_at' => $sale->completed_at?->toIso8601String(),
-            'created_at' => $sale->created_at?->toIso8601String(),
+            'completed_at' => $sale->completed_at?->timezone(config('app.business_timezone'))->toIso8601String(),
+            'created_at' => $sale->created_at?->timezone(config('app.business_timezone'))->toIso8601String(),
             'company' => [
                 'id' => $sale->company?->id,
                 'name' => $sale->company?->name,
@@ -845,7 +845,7 @@ class PosApiController extends Controller
             'balance_due' => (string) $sale->balance_due,
             'cancellation_reason' => $sale->cancellation_reason,
             'cancellation_notes' => $sale->cancellation_notes,
-            'cancelled_at' => $sale->cancelled_at?->toIso8601String(),
+            'cancelled_at' => $sale->cancelled_at?->timezone(config('app.business_timezone'))->toIso8601String(),
             'cancelled_by' => $sale->canceller ? [
                 'id' => $sale->canceller->id,
                 'name' => $sale->canceller->name,
@@ -884,7 +884,7 @@ class PosApiController extends Controller
                 'amount_tendered' => $payment->amount_tendered !== null ? (string) $payment->amount_tendered : null,
                 'change_due' => (string) $payment->change_due,
                 'reference' => $payment->reference,
-                'paid_at' => $payment->paid_at?->toIso8601String(),
+                'paid_at' => $payment->paid_at?->timezone(config('app.business_timezone'))->toIso8601String(),
             ])->all(),
         ];
     }

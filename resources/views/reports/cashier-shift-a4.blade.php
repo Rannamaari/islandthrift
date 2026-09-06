@@ -43,8 +43,8 @@
         <div class="right">
             <strong>{{ $cashierShift->shift_number }}</strong><br>
             <span class="muted">Cashier: {{ $cashierShift->cashier?->name }}</span><br>
-            <span class="muted">Opened: {{ $cashierShift->opened_at?->format('d M Y, h:i A') }}</span><br>
-            <span class="muted">Closed: {{ $cashierShift->closed_at?->format('d M Y, h:i A') }}</span>
+            <span class="muted">Opened: {{ $cashierShift->opened_at?->timezone(config('app.business_timezone'))->format('d M Y, h:i A') }} MVT</span><br>
+            <span class="muted">Closed: {{ $cashierShift->closed_at?->timezone(config('app.business_timezone'))->format('d M Y, h:i A') }} MVT</span>
         </div>
     </header>
 

@@ -440,7 +440,7 @@ class PurchaseService
                 'warehouse_id' => $purchase->warehouse_id,
                 'supplier_id' => $purchase->supplier_id,
                 'purchase_return_number' => $attributes['purchase_return_number'] ?? $this->numberSequenceService->next($purchase->company_id, 'purchase_return'),
-                'return_date' => $attributes['return_date'] ?? now()->toDateString(),
+                'return_date' => $attributes['return_date'] ?? now(config('app.business_timezone'))->toDateString(),
                 'subtotal' => $this->formatDecimal($lineItems->sum(fn (array $line): float => $line['quantity'] * $line['unit_cost'])),
                 'tax_total' => $this->formatDecimal($lineItems->sum('tax_amount')),
                 'grand_total' => $this->formatDecimal($lineItems->sum('line_total')),
