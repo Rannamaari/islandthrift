@@ -28,8 +28,8 @@
             <h1 class="text-3xl font-black tracking-tight">Register or sign in by phone</h1>
             <p class="mt-3 text-slate-600">We’ll send a one-time verification code to your Maldives mobile number. No password is needed.</p>
             <form class="mt-7 space-y-5" method="POST" action="{{ route('store.register.otp') }}">@csrf
-                <label class="store-label block">Full name<input class="store-input mt-1.5" name="name" value="{{ old('name') }}" required></label>
-                <label class="store-label block">Phone number<input class="store-input mt-1.5" type="tel" name="phone" value="{{ old('phone') }}" placeholder="7779493" required></label>
+                <label class="store-label block">Full name <span class="font-normal text-slate-400">(new accounts only)</span><input class="store-input mt-1.5" name="name" value="{{ old('name', data_get(session('store_customer_registration_prefill'), 'name')) }}"></label>
+                <label class="store-label block">Phone number<input class="store-input mt-1.5" type="tel" name="phone" value="{{ old('phone', data_get(session('store_customer_registration_prefill'), 'phone')) }}" placeholder="7779493" required></label>
                 <button class="store-button-primary w-full justify-center py-3.5">Send verification code</button>
             </form>
         </div>

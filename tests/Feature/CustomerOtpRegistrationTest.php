@@ -69,4 +69,50 @@ class CustomerOtpRegistrationTest extends TestCase
 
         $this->assertSame(0, SmsDeliveryLog::count());
     }
+
+    public function test_existing_customer_can_sign_in_by_phone_without_changing_their_name(): void
+    {
+        $this->seed(DatabaseSeeder::class);
+        config()->set('services.dhiraagu_sms.dry_run', true);
+        Http::preventStrayRequests();
+        $company = Product::query()->where('sku', 'GALAXY-A16')->firstOrFail()->company;
+        $customer = Customer::query()->create([
+            'company_id' => $company->id,
+            'code' => 'WEB-EXISTING',
+            'name' => 'Existing Customer',
+            'phone' => '9607779493',
+            'phone_verified_at' => now()->subDay(),
+            'opening_balance' => 0,
+            'is_active' => true,
+            'is_walk_in' => false,
+        ]);
+
+        $response = $this->post(route('store.register.otp'), [
+            'name' => '',
+            'phone' => '7779493',
+        ]);
+        $response->assertRedirect(route('store.register'))->assertSessionHasNoErrors();
+
+        $verified = $this->post(route('store.register.verify'), [
+            'otp' => $response->getSession()->get('store_customer_otp_debug'),
+        ]);
+
+        $verified->assertRedirect(route('store.register'))->assertSessionHasNoErrors();
+        $this->assertSame($customer->id, session('store_customer_id'));
+        $this->assertSame('Existing Customer', $customer->fresh()->name);
+    }
+
+    public function test_new_customer_must_enter_a_name_before_an_otp_is_sent(): void
+    {
+        $this->seed(DatabaseSeeder::class);
+        config()->set('services.dhiraagu_sms.dry_run', true);
+        Http::preventStrayRequests();
+
+        $this->from(route('store.register'))->post(route('store.register.otp'), [
+            'name' => '',
+            'phone' => '7779493',
+        ])->assertRedirect(route('store.register'))->assertSessionHasErrors('name');
+
+        $this->assertSame(0, SmsDeliveryLog::count());
+    }
 }

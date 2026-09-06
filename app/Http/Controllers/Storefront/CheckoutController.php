@@ -85,6 +85,12 @@ class CheckoutController extends Controller
             ->where('phone', $data['phone'])
             ->first();
 
+        if (! $registeredCustomer && $customer?->phone_verified_at) {
+            return back()->withInput()->withErrors([
+                'phone' => 'This phone number already has an account. Log in with the SMS verification code to continue, or use another number.',
+            ]);
+        }
+
         if ($customer) {
             $customer->update([
                 'name' => $data['name'],
@@ -145,6 +151,13 @@ class CheckoutController extends Controller
         }
 
         session()->forget('store_cart');
+
+        if (! $registeredCustomer && ! $customer->phone_verified_at) {
+            session()->put([
+                'store_customer_registration_prefill' => ['name' => $customer->name, 'phone' => $customer->phone],
+                'store_customer_last_order' => $sale->tracking_token,
+            ]);
+        }
 
         return redirect()->route('store.order', $sale->tracking_token)->with('order_placed', true);
     }

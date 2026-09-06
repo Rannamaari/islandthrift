@@ -22,7 +22,7 @@
 
                     <div class="rounded-2xl border border-slate-200 p-5">
                         <h3 class="text-lg font-black text-slate-950">Checkout as guest</h3>
-                        <p class="mt-2 text-sm leading-6 text-slate-600">Enter your contact and delivery details for this order only.</p>
+                        <p class="mt-2 text-sm leading-6 text-slate-600">Enter your contact and delivery details. We’ll create an account you can activate by SMS after ordering.</p>
                         <a class="mt-5 inline-flex w-full items-center justify-center rounded-full border border-slate-300 px-5 py-3 text-sm font-black text-slate-900 transition hover:border-slate-950" href="{{ route('store.checkout', ['guest' => 1]) }}">Continue as guest</a>
                     </div>
                 </div>

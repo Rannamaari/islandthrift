@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\Customer;
 use App\Models\InventoryBalance;
 use App\Models\Product;
 use App\Models\Sale;
@@ -96,6 +97,43 @@ class StorefrontTest extends TestCase
         $this->assertSame('216.0000', $order->grand_total);
         $this->assertSame('100.0000', $order->items->first()->unit_price);
         $this->assertSame($before - 2, (float) $balance->fresh()->quantity);
-        $this->get(route('store.order', $order->tracking_token))->assertOk()->assertSee($order->sale_number);
+        $this->assertNull($order->customer->phone_verified_at);
+        $response->assertSessionHas('store_customer_registration_prefill', [
+            'name' => 'Web Customer',
+            'phone' => '9607771234',
+        ]);
+        $this->get(route('store.order', $order->tracking_token))
+            ->assertOk()
+            ->assertSee($order->sale_number)
+            ->assertSee('Your customer account is ready')
+            ->assertSee('Verify and activate account');
+    }
+
+    public function test_guest_checkout_cannot_overwrite_a_verified_customer_account(): void
+    {
+        $this->seed(DatabaseSeeder::class);
+        $product = Product::query()->where('sku', 'GALAXY-A16')->firstOrFail();
+        $customer = Customer::query()->create([
+            'company_id' => $product->company_id,
+            'code' => 'WEB-VERIFIED',
+            'name' => 'Verified Customer',
+            'phone' => '9607779493',
+            'phone_verified_at' => now(),
+            'opening_balance' => 0,
+            'is_active' => true,
+            'is_walk_in' => false,
+        ]);
+        $this->post(route('store.cart.add'), ['product_id' => $product->id, 'quantity' => 1]);
+
+        $this->from(route('store.checkout', ['guest' => 1]))->post(route('store.checkout.place'), [
+            'name' => 'Someone Else',
+            'phone' => '7779493',
+            'delivery_method' => 'pickup',
+            'payment_method' => 'cash',
+        ])->assertRedirect(route('store.checkout', ['guest' => 1]))
+            ->assertSessionHasErrors('phone');
+
+        $this->assertSame('Verified Customer', $customer->fresh()->name);
+        $this->assertSame(0, Sale::query()->where('sales_channel', 'website')->count());
     }
 }

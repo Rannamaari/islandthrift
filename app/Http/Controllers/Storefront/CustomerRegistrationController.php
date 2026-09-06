@@ -22,6 +22,8 @@ class CustomerRegistrationController extends Controller
     {
         if ($request->query('redirect') === 'checkout') {
             $request->session()->put('store_customer_intended', 'checkout');
+        } elseif ($request->query('redirect') === 'order' && $request->session()->has('store_customer_last_order')) {
+            $request->session()->put('store_customer_intended', 'order');
         } elseif (! $request->session()->has('store_customer_otp_challenge')) {
             $request->session()->forget('store_customer_intended');
         }
@@ -42,7 +44,7 @@ class CustomerRegistrationController extends Controller
         }
 
         $data = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
+            'name' => ['nullable', 'string', 'max:255'],
             'phone' => ['required', 'string', 'max:50'],
         ]);
         $phone = $normalizer->normalize($data['phone']);
@@ -52,6 +54,16 @@ class CustomerRegistrationController extends Controller
         }
 
         $company = $context->company();
+        $existingCustomer = Customer::query()
+            ->where('company_id', $company->id)
+            ->where('phone', $phone)
+            ->where('is_walk_in', false)
+            ->first();
+
+        if (! $existingCustomer && blank($data['name'] ?? null)) {
+            return back()->withInput()->withErrors(['name' => 'Enter your full name to create a new account.']);
+        }
+
         $code = (string) random_int(100000, 999999);
         $challenge = CustomerOtpChallenge::query()->create([
             'company_id' => $company->id,
@@ -71,7 +83,7 @@ class CustomerRegistrationController extends Controller
 
         $request->session()->put([
             'store_customer_otp_challenge' => $challenge->id,
-            'store_customer_pending' => ['name' => $data['name'], 'phone' => $phone],
+            'store_customer_pending' => ['name' => $existingCustomer?->name ?? $data['name'], 'phone' => $phone],
         ]);
 
         if (config('services.dhiraagu_sms.dry_run')) {
@@ -137,6 +149,12 @@ class CustomerRegistrationController extends Controller
         $request->session()->forget(['store_customer_otp_challenge', 'store_customer_pending', 'store_customer_otp_debug']);
 
         $destination = $request->session()->pull('store_customer_intended');
+        $orderToken = $destination === 'order' ? $request->session()->pull('store_customer_last_order') : null;
+        $request->session()->forget('store_customer_registration_prefill');
+
+        if ($orderToken) {
+            return redirect()->route('store.order', $orderToken)->with('success', 'Your phone number is verified and you are signed in.');
+        }
 
         return redirect()->route($destination === 'checkout' ? 'store.checkout' : 'store.register')->with('success', 'Your phone number is verified.');
     }
