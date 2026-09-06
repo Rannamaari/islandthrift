@@ -3,7 +3,7 @@
     $storeCompany = $store->company();
     $storeCustomer = app(\App\Services\StorefrontCustomerSession::class)->customer(request(), $storeCompany);
     $cartCount = collect(session('store_cart', []))->sum();
-    $logoCandidates = ['images/island-thrift/logo.webp', 'images/island-thrift/logo.png', 'images/island-thrift/logo.svg', 'logo.png', 'logo.svg'];
+    $logoCandidates = ['images/island thrift logo.png', 'images/island-thrift/logo.webp', 'images/island-thrift/logo.png', 'images/island-thrift/logo.svg', 'logo.png', 'logo.svg'];
     $logoPath = collect($logoCandidates)->first(fn ($path) => file_exists(public_path($path)));
     $pageTitle = trim($__env->yieldContent('title', 'Island Thrift'));
     $pageDescription = trim($__env->yieldContent('description', 'Shop electronics, phones, laptops, audio and everyday gadgets from Island Thrift in Himmafushi, Maldives.'));
@@ -32,11 +32,11 @@
         <div class="store-container flex h-16 items-center gap-3 lg:h-20">
             <a href="{{ route('store.home') }}" class="flex shrink-0 items-center gap-2.5" aria-label="Island Thrift home">
                 @if($logoPath)
-                    <img src="{{ asset($logoPath) }}" width="44" height="44" alt="Island Thrift" class="h-10 w-10 object-contain lg:h-11 lg:w-11">
+                    <img src="{{ asset($logoPath) }}" width="1774" height="887" alt="Island Thrift" class="h-11 w-[88px] object-contain lg:h-14 lg:w-28">
                 @else
                     <span class="grid h-10 w-10 place-items-center rounded-2xl bg-indigo-600 text-lg font-black text-white shadow-lg shadow-indigo-200">IT</span>
+                    <span class="leading-none"><strong class="block text-base font-black tracking-tight lg:text-lg">Island Thrift</strong><small class="hidden text-[10px] font-bold uppercase tracking-[.18em] text-indigo-600 sm:block">Tech · Himmafushi</small></span>
                 @endif
-                <span class="leading-none"><strong class="block text-base font-black tracking-tight lg:text-lg">Island Thrift</strong><small class="hidden text-[10px] font-bold uppercase tracking-[.18em] text-indigo-600 sm:block">Tech · Himmafushi</small></span>
             </a>
 
             <nav class="ml-auto hidden items-center gap-7 text-sm font-semibold text-slate-600 lg:flex" aria-label="Main navigation">
@@ -91,7 +91,7 @@
 
     <footer class="mt-20 bg-slate-950 text-slate-300">
         <div class="store-container grid gap-10 py-14 sm:grid-cols-2 lg:grid-cols-4">
-            <div><div class="mb-4 flex items-center gap-3"><span class="grid h-10 w-10 place-items-center rounded-2xl bg-indigo-500 font-black text-white">IT</span><strong class="text-lg text-white">Island Thrift</strong></div><p class="max-w-xs text-sm leading-6 text-slate-400">Phones, laptops, audio, accessories and useful everyday gadgets, locally in Himmafushi.</p></div>
+            <div><div class="mb-4">@if($logoPath)<img src="{{ asset($logoPath) }}" width="1774" height="887" alt="Island Thrift" class="h-16 w-32 object-contain">@else<div class="flex items-center gap-3"><span class="grid h-10 w-10 place-items-center rounded-2xl bg-indigo-500 font-black text-white">IT</span><strong class="text-lg text-white">Island Thrift</strong></div>@endif</div><p class="max-w-xs text-sm leading-6 text-slate-400">Phones, laptops, audio, accessories and useful everyday gadgets, locally in Himmafushi.</p></div>
             <div><h2 class="store-footer-title">Shop</h2><div class="grid gap-2.5 text-sm"><a href="{{ route('store.shop') }}">All Products</a><a href="{{ route('store.shop', ['sort' => 'newest']) }}">New Arrivals</a><a href="{{ route('store.cart') }}">Cart</a></div></div>
             <div><h2 class="store-footer-title">Help</h2><div class="grid gap-2.5 text-sm"><a href="{{ route('store.contact') }}">Contact Us</a><a href="{{ route('store.contact') }}#location">Himmafushi, Maldives</a><a href="{{ route('store.shop') }}">Browse Categories</a></div></div>
             <div><h2 class="store-footer-title">Contact</h2><div class="grid gap-2.5 text-sm text-slate-400">@if($storeCompany->phone)<a href="tel:{{ $storeCompany->phone }}">{{ $storeCompany->phone }}</a>@endif @if($storeCompany->email)<a href="mailto:{{ $storeCompany->email }}">{{ $storeCompany->email }}</a>@endif <span>Himmafushi, Maldives</span></div></div>
