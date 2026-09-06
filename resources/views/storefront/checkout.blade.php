@@ -11,7 +11,7 @@
         <div class="mt-9 grid items-start gap-8 lg:grid-cols-[1fr_380px]">
             <div class="store-checkout-panel">
                 <h2>How would you like to checkout?</h2>
-                <p class="mt-2 text-sm leading-6 text-slate-500">Log in to use your verified customer details, or continue without creating an account.</p>
+                <p class="mt-2 text-sm leading-6 text-slate-500">Log in to use your verified customer details, or continue as a guest and activate your new account after ordering.</p>
 
                 <div class="mt-6 grid gap-4 sm:grid-cols-2">
                     <div class="rounded-2xl border border-indigo-200 bg-indigo-50/60 p-5">

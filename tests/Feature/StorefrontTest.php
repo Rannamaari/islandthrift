@@ -66,6 +66,8 @@ class StorefrontTest extends TestCase
             ->assertOk()
             ->assertSee('Log in / Register')
             ->assertSee('Continue as guest')
+            ->assertSee('activate your new account after ordering')
+            ->assertDontSee('without creating an account')
             ->assertDontSee('name="delivery_method"', false)
             ->assertSee('MVR 216.00')
             ->assertSee('Prices include GST.');
