@@ -32,7 +32,9 @@ async function submit() {
         const response = await window.axios.post(url, payload);
         emit('saved', response.data);
     } catch (requestError) {
-        error.value = requestError.response?.data?.message ?? 'The cashier shift could not be saved.';
+        error.value = requestError.response?.data?.message
+            ?? requestError.message
+            ?? 'The cashier shift could not be saved.';
     } finally {
         submitting.value = false;
     }

@@ -52,6 +52,13 @@ class PosApiController extends Controller
         private readonly CashierShiftService $cashierShiftService,
     ) {}
 
+    public function csrfToken(Request $request): JsonResponse
+    {
+        return response()
+            ->json(['token' => $request->session()->token()])
+            ->header('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+    }
+
     public function searchProducts(Request $request): JsonResponse
     {
         $context = $this->posContext($request, 'sales.create');

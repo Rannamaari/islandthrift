@@ -90,6 +90,7 @@ Route::middleware('auth')->group(function (): void {
     Route::get('/reports/cashier-shifts/{cashierShift}/print', CashierShiftReportController::class)->name('cashier-shifts.print');
 
     Route::prefix('/pos/api')->group(function (): void {
+        Route::get('/csrf-token', [PosApiController::class, 'csrfToken'])->name('pos.csrf-token');
         Route::get('/products/search', [PosApiController::class, 'searchProducts'])->name('pos.products.search');
         Route::get('/products/barcode/{barcode}', [PosApiController::class, 'barcodeLookup'])->name('pos.products.barcode');
         Route::post('/shifts/open', [PosApiController::class, 'openShift'])->name('pos.shifts.open');

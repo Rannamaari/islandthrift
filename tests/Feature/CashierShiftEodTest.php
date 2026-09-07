@@ -75,6 +75,44 @@ class CashierShiftEodTest extends TestCase
     }
 
     #[Test]
+    public function a_cashier_can_close_a_shift_with_no_sales_and_zero_cash(): void
+    {
+        $warehouse = Warehouse::factory()->create();
+        $cashier = User::factory()->forWarehouse($warehouse)->create();
+        $cashier->assignRole(Role::findByName('cashier'));
+        $shiftId = $this->actingAs($cashier)
+            ->postJson('/pos/api/shifts/open', ['opening_cash' => 0])
+            ->assertOk()
+            ->json('data.id');
+
+        $this->actingAs($cashier)
+            ->postJson("/pos/api/shifts/{$shiftId}/close", ['closing_cash' => 0])
+            ->assertOk()
+            ->assertJsonPath('data.status', 'closed');
+
+        $shift = CashierShift::query()->findOrFail($shiftId);
+        $this->assertSame('0.0000', $shift->closing_cash);
+        $this->assertSame(0, $shift->report_snapshot['sales_count']);
+    }
+
+    #[Test]
+    public function an_authenticated_pos_user_can_refresh_their_csrf_token(): void
+    {
+        $warehouse = Warehouse::factory()->create();
+        $cashier = User::factory()->forWarehouse($warehouse)->create();
+        $cashier->assignRole(Role::findByName('cashier'));
+
+        $this->actingAs($cashier)
+            ->getJson('/pos/api/csrf-token')
+            ->assertOk()
+            ->assertHeader('Cache-Control')
+            ->assertJsonStructure(['token']);
+
+        auth()->logout();
+        $this->getJson('/pos/api/csrf-token')->assertUnauthorized();
+    }
+
+    #[Test]
     public function an_admin_can_see_eod_reports_but_a_cashier_cannot_access_the_reports_section(): void
     {
         $warehouse = Warehouse::factory()->create();
